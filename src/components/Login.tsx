@@ -1,13 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { RootState, AppDispatch } from '@/store';
 import { signIn } from '@/store/slices/userSlice';
+import { useNavigate } from 'react-router-dom';
 
 const Login: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { loading, error } = useSelector((state: RootState) => state.user);
+  const { loading, error, user } = useSelector(
+    (state: RootState) => state.user
+  );
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user) {
+      navigate('/profile');
+    }
+  }, [user, navigate]);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
