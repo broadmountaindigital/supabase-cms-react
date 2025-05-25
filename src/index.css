@@ -1,1 +1,20 @@
 @import 'tailwindcss';
+
+/* Reset all textarea styles */
+textarea {
+  all: unset;
+  box-sizing: border-box;
+  background: none;
+  color: inherit;
+  font: inherit;
+  margin: 0;
+  padding: 0;
+  border: none;
+  outline: none;
+  resize: none;
+  width: 100%;
+}
+
+h1 {
+  @apply text-2xl font-bold;
+}
