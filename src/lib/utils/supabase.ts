@@ -1,3 +1,4 @@
+import type { Database } from '@/types/database/supabase';
 import { createClient } from '@supabase/supabase-js';
 
 // These would typically be in environment variables
@@ -8,4 +9,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
   console.error('Supabase environment variables are not set.');
 }
 
-export const supabase = createClient(supabaseUrl || '', supabaseAnonKey || '');
+export const supabase = createClient<Database>(
+  supabaseUrl || '',
+  supabaseAnonKey || ''
+);
