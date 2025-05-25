@@ -7,10 +7,12 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "types:supabase": "supabase gen types typescript --local > src/types/database/supabase.ts && prettier --write src/types/database/supabase.ts"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.8.2",
+    "@supabase/supabase-js": "2.49.8",
     "@tailwindcss/vite": "4.1.7",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
