@@ -24,7 +24,11 @@
 
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@/lib/*": ["src/lib/*"],
+      "@/store/*": ["src/store/*"],
+      "@/components/*": ["src/components/*"],
+      "@/types/*": ["src/types/*"]
     }
   },
   "include": ["src"]
