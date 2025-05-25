@@ -11,8 +11,11 @@ textarea {
   padding: 0;
   border: none;
   outline: none;
+  focus: ring-0;
   resize: none;
+  height: auto;
   width: 100%;
+  field-sizing: content;
 }
 
 h1 {

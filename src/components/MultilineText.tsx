@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
+import type { RootState } from '../store';
 import type { TextInputProps } from '../types/TextInputProps';
 
 interface MultilineTextProps extends TextInputProps {
@@ -6,6 +8,10 @@ interface MultilineTextProps extends TextInputProps {
 }
 
 export default function MultilineText(props: MultilineTextProps) {
+  const isInEditMode = useSelector(
+    (state: RootState) => state.editingTools.isInEditMode
+  );
+
   const {
     defaultValue = '',
     onChange,
@@ -72,14 +78,16 @@ export default function MultilineText(props: MultilineTextProps) {
     typeof maxLines === 'number' ? Math.min(lineCount, maxLines) : lineCount
   );
 
-  return (
+  return isInEditMode ? (
     <textarea
       value={value}
       onChange={handleChange}
       onKeyDown={handleKeyDown}
-      className={className}
+      className={className ?? ''}
       rows={rows}
       {...rest}
     />
+  ) : (
+    <>{value}</>
   );
 }
