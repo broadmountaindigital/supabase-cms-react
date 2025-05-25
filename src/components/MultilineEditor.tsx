@@ -3,11 +3,11 @@ import { useSelector } from 'react-redux';
 import type { RootState } from '../store';
 import type { TextInputProps } from '../types/TextInputProps';
 
-interface MultilineTextProps extends TextInputProps {
+interface MultilineEditorProps extends TextInputProps {
   rest?: React.TextareaHTMLAttributes<HTMLTextAreaElement>;
 }
 
-export default function MultilineText(props: MultilineTextProps) {
+export default function MultilineEditor(props: MultilineEditorProps) {
   const isInEditMode = useSelector(
     (state: RootState) => state.editingTools.isInEditMode
   );

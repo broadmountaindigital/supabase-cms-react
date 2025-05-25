@@ -1,10 +1,10 @@
-import MultilineText from './components/MultilineText';
+import MultilineEditor from './components/MultilineEditor';
 
 function App() {
   return (
     <div>
       <h1>
-        <MultilineText
+        <MultilineEditor
           defaultValue="hello world"
           onChange={() => {}}
           maxLines={2}
@@ -12,7 +12,10 @@ function App() {
         />
       </h1>
       <p>
-        <MultilineText defaultValue="This is simply text" onChange={() => {}} />
+        <MultilineEditor
+          defaultValue="This is simply text"
+          onChange={() => {}}
+        />
       </p>
     </div>
   );

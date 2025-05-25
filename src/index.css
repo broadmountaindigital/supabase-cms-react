@@ -16,6 +16,7 @@ textarea {
   height: auto;
   width: 100%;
   field-sizing: content;
+  line-height: normal;
 }
 
 h1 {
