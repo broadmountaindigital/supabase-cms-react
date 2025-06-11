@@ -1,7 +1,6 @@
 CREATE TABLE content_fields (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     site_id uuid references public.sites(id) on delete cascade,
-    content_id uuid NOT NULL,
     field_name text NOT NULL,
     field_value text,
     field_namespace text,

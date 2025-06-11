@@ -78,7 +78,6 @@ export type Database = {
       };
       content_fields: {
         Row: {
-          content_id: string;
           created_at: string;
           field_name: string;
           field_namespace: string | null;
@@ -88,7 +87,6 @@ export type Database = {
           updated_at: string;
         };
         Insert: {
-          content_id: string;
           created_at?: string;
           field_name: string;
           field_namespace?: string | null;
@@ -98,7 +96,6 @@ export type Database = {
           updated_at?: string;
         };
         Update: {
-          content_id?: string;
           created_at?: string;
           field_name?: string;
           field_namespace?: string | null;
@@ -240,7 +237,6 @@ export type Database = {
       get_content_fields_for_page: {
         Args: { page_id: string };
         Returns: {
-          content_id: string;
           created_at: string;
           field_name: string;
           field_namespace: string | null;
