@@ -34,6 +34,48 @@ export type Database = {
   };
   public: {
     Tables: {
+      content_field_page_relations: {
+        Row: {
+          archived_at: string | null;
+          content_field_id: string;
+          created_at: string | null;
+          id: string;
+          site_page_id: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          archived_at?: string | null;
+          content_field_id: string;
+          created_at?: string | null;
+          id?: string;
+          site_page_id?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          archived_at?: string | null;
+          content_field_id?: string;
+          created_at?: string | null;
+          id?: string;
+          site_page_id?: string | null;
+          updated_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'content_field_page_relations_content_field_id_fkey';
+            columns: ['content_field_id'];
+            isOneToOne: false;
+            referencedRelation: 'content_fields';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'content_field_page_relations_site_page_id_fkey';
+            columns: ['site_page_id'];
+            isOneToOne: false;
+            referencedRelation: 'site_pages';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       content_fields: {
         Row: {
           content_id: string;
@@ -195,7 +237,19 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
-      [_ in never]: never;
+      get_content_fields_for_page: {
+        Args: { page_id: string };
+        Returns: {
+          content_id: string;
+          created_at: string;
+          field_name: string;
+          field_namespace: string | null;
+          field_value: string | null;
+          id: string;
+          site_id: string | null;
+          updated_at: string;
+        }[];
+      };
     };
     Enums: {
       user_site_role: 'author' | 'editor' | 'admin';
