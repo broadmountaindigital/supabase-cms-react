@@ -1,0 +1,28 @@
+{
+  "id": "d28faf8c-9fd0-4fad-96ba-16450498d2e1",
+  "user_id": null,
+  "site_name": "levithehandyman.com",
+  "site_url": "https://www.levithehandyman.com",
+  "created_at": "2025-06-11T00:30:19.200736+00:00",
+  "pages": [],
+  "contentFields": [
+    {
+      "id": "43379ce5-850d-4fb9-b6f6-b627fb412090",
+      "site_id": "d28faf8c-9fd0-4fad-96ba-16450498d2e1",
+      "field_name": "phone",
+      "field_value": "616.238.9799",
+      "field_namespace": null,
+      "created_at": "2025-06-11T00:33:09.216202+00:00",
+      "updated_at": "2025-06-11T00:33:09.216202+00:00"
+    },
+    {
+      "id": "060da2dc-cea1-486d-992b-7850a70e39dd",
+      "site_id": "d28faf8c-9fd0-4fad-96ba-16450498d2e1",
+      "field_name": "email",
+      "field_value": "levithehandyman@outlook.com",
+      "field_namespace": null,
+      "created_at": "2025-06-11T00:34:30.124484+00:00",
+      "updated_at": "2025-06-11T00:34:30.124484+00:00"
+    }
+  ]
+}
