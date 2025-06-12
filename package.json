@@ -1,30 +1,82 @@
 {
-  "name": "unnamed-supabase-cms",
-  "private": true,
-  "version": "0.0.0",
+  "name": "@supabase-cms/react",
+  "private": false,
+  "version": "0.1.0",
   "type": "module",
+  "description": "A React library for content management using Supabase",
+  "keywords": [
+    "react",
+    "supabase",
+    "cms",
+    "content-management",
+    "typescript"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "main": "./dist/index.js",
+  "module": "./dist/index.es.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.es.js",
+      "require": "./dist/index.js"
+    },
+    "./components": {
+      "types": "./dist/components.d.ts",
+      "import": "./dist/components.es.js",
+      "require": "./dist/components.js"
+    },
+    "./providers": {
+      "types": "./dist/providers.d.ts",
+      "import": "./dist/providers.es.js",
+      "require": "./dist/providers.js"
+    },
+    "./hooks": {
+      "types": "./dist/hooks.d.ts",
+      "import": "./dist/hooks.es.js",
+      "require": "./dist/hooks.js"
+    },
+    "./types": {
+      "types": "./dist/types.d.ts",
+      "import": "./dist/types.es.js",
+      "require": "./dist/types.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:lib": "npm run clean && npm run build:types && vite build --config vite.lib.config.ts",
+    "build:types": "tsc --project tsconfig.lib.json",
+    "clean": "rm -rf dist",
     "lint": "eslint .",
     "preview": "vite preview",
+    "prepublishOnly": "npm run build:lib && npm run lint",
     "types:supabase": "supabase gen types typescript --local > src/types/database/supabase.ts && prettier --write src/types/database/supabase.ts"
   },
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0",
+    "@reduxjs/toolkit": "^2.0.0",
+    "react-redux": "^9.0.0",
+    "@supabase/supabase-js": "^2.0.0"
+  },
   "dependencies": {
-    "@reduxjs/toolkit": "^2.8.2",
-    "@supabase/supabase-js": "2.49.8",
     "@tailwindcss/vite": "4.1.7",
-    "@types/react-router-dom": "^5.3.3",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "react-redux": "^9.2.0",
-    "react-router-dom": "^7.6.0",
     "tailwindcss": "4.1.7"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",
+    "@reduxjs/toolkit": "^2.8.2",
+    "@supabase/supabase-js": "2.49.8",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
+    "@types/react-router-dom": "^5.3.3",
     "@vitejs/plugin-react": "^4.4.1",
     "dotenv": "16.5.0",
     "eslint": "^9.25.0",
@@ -34,6 +86,10 @@
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^16.0.0",
     "prettier": "3.5.3",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-redux": "^9.2.0",
+    "react-router-dom": "^7.6.0",
     "supabase": "2.24.3",
     "tsx": "4.19.4",
     "typescript": "~5.8.3",

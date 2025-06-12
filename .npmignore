@@ -1,0 +1,69 @@
+# Source files
+src/
+*.ts
+*.tsx
+!*.d.ts
+
+# Development files
+.vscode/
+.idea/
+*.log
+*.tgz
+*.tar.gz
+
+# Build files (except dist)
+build/
+coverage/
+
+# Configuration files
+vite.config.ts
+vite.lib.config.ts
+tsconfig.json
+tsconfig.app.json
+tsconfig.node.json
+tsconfig.lib.json
+eslint.config.js
+.prettierrc.json
+.prettierignore
+.editorconfig
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+example.env
+
+# Git files
+.git/
+.gitignore
+
+# Node modules
+node_modules/
+
+# Supabase
+supabase/
+
+# Scripts
+scripts/
+
+# Public assets (not needed for library)
+public/
+
+# HTML files
+index.html
+
+# CSS files (will be bundled)
+*.css
+!dist/*.css
+
+# Test files
+**/*.test.*
+**/*.spec.*
+__tests__/
+test/
+tests/
+
+# Documentation (keep README.md)
+docs/

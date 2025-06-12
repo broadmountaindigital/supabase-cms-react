@@ -14,7 +14,11 @@ const initialState: UserState = {
   error: null,
 };
 
-export const signUp = createAsyncThunk(
+export const signUp = createAsyncThunk<
+  User | null,
+  { email: string; password: string },
+  { rejectValue: string }
+>(
   'user/signUp',
   async (
     { email, password }: { email: string; password: string },
@@ -26,7 +30,11 @@ export const signUp = createAsyncThunk(
   }
 );
 
-export const signIn = createAsyncThunk(
+export const signIn = createAsyncThunk<
+  User | null,
+  { email: string; password: string },
+  { rejectValue: string }
+>(
   'user/signIn',
   async (
     { email, password }: { email: string; password: string },
@@ -41,7 +49,7 @@ export const signIn = createAsyncThunk(
   }
 );
 
-export const signOut = createAsyncThunk(
+export const signOut = createAsyncThunk<null, void, { rejectValue: string }>(
   'user/signOut',
   async (_, { rejectWithValue }) => {
     const { error } = await supabase.auth.signOut();
@@ -50,14 +58,15 @@ export const signOut = createAsyncThunk(
   }
 );
 
-export const resetPassword = createAsyncThunk(
-  'user/resetPassword',
-  async (email: string, { rejectWithValue }) => {
-    const { error } = await supabase.auth.resetPasswordForEmail(email);
-    if (error) return rejectWithValue(error.message);
-    return true;
-  }
-);
+export const resetPassword = createAsyncThunk<
+  boolean,
+  string,
+  { rejectValue: string }
+>('user/resetPassword', async (email: string, { rejectWithValue }) => {
+  const { error } = await supabase.auth.resetPasswordForEmail(email);
+  if (error) return rejectWithValue(error.message);
+  return true;
+});
 
 const userSlice = createSlice({
   name: 'user',
