@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/broadmountaindigital/a-supabase-cms/compare/v1.1.0...v1.1.1) (2025-06-13)
+
+
+### Bug Fixes
+
+* remove redux references from app ([42b057a](https://github.com/broadmountaindigital/a-supabase-cms/commit/42b057a28f1f0699455d240689ea7b153566d906))
+
 # [1.1.0](https://github.com/broadmountaindigital/a-supabase-cms/compare/v1.0.0...v1.1.0) (2025-06-13)
 
 
