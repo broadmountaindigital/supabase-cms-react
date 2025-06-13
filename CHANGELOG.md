@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/broadmountaindigital/supabase-cms-react/compare/v1.2.0...v1.3.0) (2025-06-13)
+
+
+### Features
+
+* fix multiline editor sizing in edit mode ([8ade5a9](https://github.com/broadmountaindigital/supabase-cms-react/commit/8ade5a94ce1353b26e5181f43eb7c5fe9a4aac3c))
+
 # [1.2.0](https://github.com/broadmountaindigital/supabase-cms-react/compare/v1.1.3...v1.2.0) (2025-06-13)
 
 
