@@ -1,11 +1,20 @@
 import React from 'react';
 import { useSupabaseCMS } from '../hooks/useSupabaseCMS';
 
+/**
+ * Props for the Profile component.
+ */
 export interface ProfileProps {
+  /** Callback function to be called after the user signs out. */
   onSignOut?: () => void;
+  /** Optional CSS class name for custom styling. */
   className?: string;
 }
 
+/**
+ * A component that displays the current user's profile information
+ * and provides a sign-out button.
+ */
 const Profile: React.FC<ProfileProps> = ({ onSignOut, className }) => {
   const { user, signOut, loading } = useSupabaseCMS();
 

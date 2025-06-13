@@ -2,12 +2,22 @@ import React, { useState, useEffect } from 'react';
 import { useSupabaseCMS } from '../hooks/useSupabaseCMS';
 import type { AuthError, User } from '@supabase/supabase-js';
 
+/**
+ * Props for the Login component.
+ */
 export interface LoginProps {
+  /** Callback function to be called on successful login. */
   onLoginSuccess?: (user: User) => void;
+  /** Callback function to be called on login error. */
   onLoginError?: (error: AuthError) => void;
+  /** Optional CSS class name for custom styling. */
   className?: string;
 }
 
+/**
+ * A component that renders a login form.
+ * Handles user authentication via email and password.
+ */
 const Login: React.FC<LoginProps> = ({
   onLoginSuccess,
   onLoginError,

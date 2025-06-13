@@ -1,0 +1,10 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": ["src/index.ts"],
+  "out": "docs/api",
+  "name": "Supabase CMS - React Library",
+  "readme": "README.md",
+  "excludePrivate": true,
+  "excludeExternals": true,
+  "theme": "default"
+}

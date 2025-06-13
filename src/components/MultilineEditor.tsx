@@ -2,10 +2,18 @@ import React, { useState } from 'react';
 import type { TextInputProps } from '../types/TextInputProps';
 import { useSupabaseCMS } from '../hooks/useSupabaseCMS';
 
+/**
+ * Props for the MultilineEditor component.
+ */
 export interface MultilineEditorProps extends TextInputProps {
+  /** Optional attributes to pass to the underlying textarea element. */
   rest?: React.TextareaHTMLAttributes<HTMLTextAreaElement>;
 }
 
+/**
+ * A multiline text editor component that can be used for inline editing.
+ * It renders a textarea when in edit mode, and plain text otherwise.
+ */
 export default function MultilineEditor(props: MultilineEditorProps) {
   const { isInEditMode } = useSupabaseCMS();
 

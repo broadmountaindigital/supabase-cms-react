@@ -2,12 +2,25 @@ import React, { useState, useEffect } from 'react';
 import { useSupabaseCMS } from '../hooks/useSupabaseCMS';
 import type { AuthError, User } from '@supabase/supabase-js';
 
+/**
+ * Props for the Signup component.
+ */
 export interface SignupProps {
+  /**
+   * Callback function to be called on successful signup.
+   * The user object may be null if email confirmation is required.
+   */
   onSignupSuccess?: (user: User | null) => void;
+  /** Callback function to be called on signup error. */
   onSignupError?: (error: AuthError) => void;
+  /** Optional CSS class name for custom styling. */
   className?: string;
 }
 
+/**
+ * A component that renders a signup form.
+ * Handles new user registration via email and password.
+ */
 const Signup: React.FC<SignupProps> = ({
   onSignupSuccess,
   onSignupError,
