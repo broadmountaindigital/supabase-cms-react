@@ -1,0 +1,47 @@
+# GitHub Actions workflow for automated versioning, changelog generation, and publishing
+
+name: 'Release and Publish'
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    # Grant permissions for semantic-release to create a release and commit to the repo
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+      id-token: write
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout code'
+        uses: actions/checkout@v4
+        with:
+          # Fetch all history for semantic-release to analyze
+          fetch-depth: 0
+
+      - name: 'Set up Node.js'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+
+      - name: 'Install dependencies'
+        run: npm ci
+
+      - name: 'Run Semantic Release'
+        # This command will:
+        # 1. Analyze commits to determine the next version number.
+        # 2. Build the library (via the "pre" script in .releaserc if configured, or we can add a build step).
+        # 3. Generate a CHANGELOG.md.
+        # 4. Tag a new release on GitHub.
+        # 5. Publish the package to NPM.
+        run: npx semantic-release
+        env:
+          # Token for publishing to NPM
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          # Token for creating a GitHub release and committing files
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

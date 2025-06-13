@@ -7,7 +7,7 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      'supabase-cms-react': path.resolve(__dirname, '../src'),
+      '@broadmountain/supabase-cms-react': path.resolve(__dirname, '../src'),
     },
   },
 })

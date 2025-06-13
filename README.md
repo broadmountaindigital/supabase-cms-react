@@ -1,6 +1,6 @@
 # Supabase CMS - React Library
 
-[![NPM Version](https://img.shields.io/npm/v/@supabase-cms/react)](https://www.npmjs.com/package/@supabase-cms/react)
+[![NPM Version](https://img.shields.io/npm/v/@broadmountain/supabase-cms-react)](https://www.npmjs.com/package/@broadmountain/supabase-cms-react)
 
 A React library that provides content management capabilities for websites using Supabase as the backend. This library allows developers to add CMS functionality to their React applications with site-specific content management.
 
@@ -15,7 +15,7 @@ A React library that provides content management capabilities for websites using
 ## Installation
 
 ```bash
-npm install @supabase-cms/react @supabase/supabase-js @reduxjs/toolkit react-redux
+npm install @broadmountain/supabase-cms-react @supabase/supabase-js react react-dom
 ```
 
 ## Usage
@@ -30,10 +30,10 @@ import {
   Profile,
   MultilineEditor,
   Settings,
-} from '@supabase-cms/react';
+} from '@broadmountain/supabase-cms-react';
 
 // Import the bundled CSS
-import '@supabase-cms/react/style.css';
+import '@broadmountain/supabase-cms-react/dist/style.css';
 
 function App() {
   return (
@@ -83,7 +83,7 @@ To use the styles, simply import the stylesheet into your application's entry po
 
 ```tsx
 // In your src/main.tsx or App.tsx
-import '@supabase-cms/react/style.css';
+import '@broadmountain/supabase-cms-react/dist/style.css';
 ```
 
 This will apply all the necessary styles for the components to render correctly.

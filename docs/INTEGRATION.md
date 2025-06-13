@@ -1,13 +1,13 @@
 # Supabase CMS Integration Guide
 
-This guide provides a step-by-step walkthrough for integrating the `@supabase-cms/react` library into your React application.
+This guide provides a step-by-step walkthrough for integrating the `@broadmountain/supabase-cms-react` library into your React application.
 
 ## 1. Installation
 
 First, install the library along with its peer dependencies from npm:
 
 ```bash
-npm install @supabase-cms/react @supabase/supabase-js react react-dom
+npm install @broadmountain/supabase-cms-react @supabase/supabase-js react react-dom
 ```
 
 ## 2. Environment Variables
@@ -33,7 +33,7 @@ Here is an example of how to set it up in your main `App.tsx` or `main.tsx` file
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
-import { SupabaseCMSProvider } from '@supabase-cms/react';
+import { SupabaseCMSProvider } from '@broadmountain/supabase-cms-react';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -60,7 +60,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 The library comes with a pre-bundled CSS file that includes all the necessary styles for the components, powered by Tailwind CSS. To apply these styles, import the stylesheet into your main application entry point (e.g., `main.tsx` or `App.tsx`).
 
 ```tsx
-import '@supabase-cms/react/dist/style.css';
+import '@broadmountain/supabase-cms-react/dist/style.css';
 ```
 
 ## 5. Usage Example
@@ -75,7 +75,7 @@ import {
   Settings,
   MultilineEditor,
   useSupabaseCMS,
-} from '@supabase-cms/react';
+} from '@broadmountain/supabase-cms-react';
 
 function MyCmsPage() {
   const { user, loading, error, isInEditMode, toggleEditMode } = useSupabaseCMS();

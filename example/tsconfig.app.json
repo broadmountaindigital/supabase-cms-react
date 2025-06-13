@@ -9,8 +9,8 @@
 
     "baseUrl": ".",
     "paths": {
-      "supabase-cms-react": ["../src/index"],
-      "supabase-cms-react/*": ["../src/*"]
+      "@broadmountain/supabase-cms-react": ["../src/index"],
+      "@broadmountain/supabase-cms-react/*": ["../src/*"]
     },
 
     /* Bundler mode */

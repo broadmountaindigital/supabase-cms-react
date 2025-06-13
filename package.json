@@ -1,5 +1,5 @@
 {
-  "name": "@supabase-cms/react",
+  "name": "@broadmountain/supabase-cms-react",
   "private": false,
   "version": "0.1.0",
   "type": "module",
@@ -60,7 +60,8 @@
     "docs:generate": "typedoc",
     "preview": "vite preview",
     "prepublishOnly": "npm run build:lib && npm run lint",
-    "types:supabase": "supabase gen types typescript --local > src/types/database/supabase.ts && prettier --write src/types/database/supabase.ts"
+    "types:supabase": "supabase gen types typescript --local > src/types/database/supabase.ts && prettier --write src/types/database/supabase.ts",
+    "release": "semantic-release"
   },
   "peerDependencies": {
     "@supabase/supabase-js": "^2.0.0",
@@ -69,6 +70,8 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
     "@tailwindcss/vite": "4.1.7",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
@@ -86,6 +89,7 @@
     "react-dom": "^19.1.0",
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.6.0",
+    "semantic-release": "^24.2.5",
     "supabase": "2.24.3",
     "tailwindcss": "4.1.7",
     "tsx": "4.19.4",

@@ -5,7 +5,7 @@ import {
   Settings,
   SupabaseCMSProvider,
   useSupabaseCMS,
-} from 'supabase-cms-react'
+} from '@broadmountain/supabase-cms-react'
 import '../src/index.css'
 import './App.css'
 
