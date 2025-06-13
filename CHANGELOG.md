@@ -1,3 +1,10 @@
+## [1.1.3](https://github.com/broadmountaindigital/supabase-cms-react/compare/v1.1.2...v1.1.3) (2025-06-13)
+
+
+### Bug Fixes
+
+* update project title in README to match package name ([b2420e3](https://github.com/broadmountaindigital/supabase-cms-react/commit/b2420e31067eb5c7b2ae83c9de6992be84381a35))
+
 ## [1.1.2](https://github.com/broadmountaindigital/a-supabase-cms/compare/v1.1.1...v1.1.2) (2025-06-13)
 
 
