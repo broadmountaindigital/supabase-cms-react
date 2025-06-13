@@ -1,4 +1,4 @@
-# Supabase CMS - React Library
+# @broadmountain/supabase-cms-react
 
 [![NPM Version](https://img.shields.io/npm/v/@broadmountain/supabase-cms-react)](https://www.npmjs.com/package/@broadmountain/supabase-cms-react)
 
