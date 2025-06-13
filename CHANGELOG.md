@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/broadmountaindigital/a-supabase-cms/compare/v1.0.0...v1.1.0) (2025-06-13)
+
+
+### Features
+
+* **release:** configure automated publishing for [@broadmountain](https://github.com/broadmountain) ([38b90a9](https://github.com/broadmountaindigital/a-supabase-cms/commit/38b90a9beadea982819e555cbce4b657dd0d984c))
+
 # 1.0.0 (2025-06-13)
 
 
