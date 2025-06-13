@@ -1,10 +1,11 @@
-import React, { createContext, useContext, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { Provider as ReduxProvider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from '@/types/database/supabase';
 import editingToolsReducer from '@/store/slices/editingToolsSlice';
 import userReducer from '@/store/slices/userSlice';
+import { SiteContext } from './SiteContext';
 
 interface SupabaseCMSProviderProps {
   siteId: string;
@@ -12,13 +13,6 @@ interface SupabaseCMSProviderProps {
   supabaseAnonKey: string;
   children: React.ReactNode;
 }
-
-interface SiteContextType {
-  siteId: string;
-  supabase: ReturnType<typeof createClient<Database>>;
-}
-
-const SiteContext = createContext<SiteContextType | null>(null);
 
 export function SupabaseCMSProvider({
   siteId,
@@ -57,25 +51,4 @@ export function SupabaseCMSProvider({
       <ReduxProvider store={store}>{children}</ReduxProvider>
     </SiteContext.Provider>
   );
-}
-
-// Hook to access site context
-export function useSiteContext() {
-  const context = useContext(SiteContext);
-  if (!context) {
-    throw new Error('useSiteContext must be used within a SupabaseCMSProvider');
-  }
-  return context;
-}
-
-// Hook to access site ID
-export function useSiteId() {
-  const { siteId } = useSiteContext();
-  return siteId;
-}
-
-// Hook to access Supabase client
-export function useSupabase() {
-  const { supabase } = useSiteContext();
-  return supabase;
 }

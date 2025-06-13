@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { useSiteContext } from '@/providers/SupabaseCMSProvider';
+import { useSiteContext } from '@/providers/useSiteContext';
 import { SiteAwareServiceFactory } from '@/lib/services/SiteAwareServiceFactory';
 import type { RootState, AppDispatch } from '@/store';
 
