@@ -1,47 +1,52 @@
 import React, { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import type { RootState, AppDispatch } from '@/store';
-import { signIn } from '@/store/slices/userSlice';
-import { useNavigate } from 'react-router-dom';
+import { useSupabaseCMS } from '../hooks/useSupabaseCMS';
+import type { AuthError, User } from '@supabase/supabase-js';
 
-const Login: React.FC = () => {
-  const dispatch = useDispatch<AppDispatch>();
-  const { loading, error, user } = useSelector(
-    (state: RootState) => state.user
-  );
+interface LoginProps {
+  onLoginSuccess?: (user: User) => void;
+  onLoginError?: (error: AuthError) => void;
+  className?: string;
+}
+
+const Login: React.FC<LoginProps> = ({
+  onLoginSuccess,
+  onLoginError,
+  className,
+}) => {
+  const { signIn, user, loading, error } = useSupabaseCMS();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const navigate = useNavigate();
 
   useEffect(() => {
-    if (user) {
-      navigate('/profile');
+    if (user && onLoginSuccess) {
+      onLoginSuccess(user);
     }
-  }, [user, navigate]);
+  }, [user, onLoginSuccess]);
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    dispatch(signIn({ email, password }));
+    const { error: signInError } = await signIn({ email, password });
+    if (signInError && onLoginError) {
+      onLoginError(signInError);
+    }
   }
 
   return (
     <form
       onSubmit={handleSubmit}
-      style={{
-        maxWidth: 400,
-        margin: '2rem auto',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 16,
-      }}
+      className={
+        className ??
+        'max-w-md mx-auto my-8 flex flex-col gap-4 p-4 border rounded'
+      }
     >
-      <h2>Login</h2>
+      <h2 className="text-2xl font-bold mb-4">Login</h2>
       <input
         type="email"
         placeholder="Email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         required
+        className="p-2 border rounded"
       />
       <input
         type="password"
@@ -49,11 +54,16 @@ const Login: React.FC = () => {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         required
+        className="p-2 border rounded"
       />
-      <button type="submit" disabled={loading}>
+      <button
+        type="submit"
+        disabled={loading}
+        className="p-2 bg-blue-500 text-white rounded disabled:bg-gray-400"
+      >
         {loading ? 'Logging in...' : 'Login'}
       </button>
-      {error && <div style={{ color: 'red' }}>{error}</div>}
+      {error && <div className="text-red-500">{error.message}</div>}
     </form>
   );
 };

@@ -87,9 +87,9 @@ Convert the current Supabase CMS application into a reusable NPM package that ca
   - [x] Remove direct Redux dependencies
   - [x] Use context/hooks for state access
   - [x] Ensure it works in consuming applications
-- [ ] Refactor other components for library use
-  - [ ] `Login`, `Signup`, `Profile` components
-  - [ ] `Settings` component for edit mode toggle
+- [x] Refactor other components for library use ✅
+  - [x] `Login`, `Signup`, `Profile` components
+  - [x] `Settings` component for edit mode toggle
   - [ ] Any other components to be exported
 
 ### 3.2 Styling Strategy
@@ -195,7 +195,7 @@ Convert the current Supabase CMS application into a reusable NPM package that ca
 
 ### Medium Priority
 
-1. Additional component exports
+1. ✅ Additional component exports
 2. Comprehensive testing
 3. Advanced configuration options
 4. Plugin system design

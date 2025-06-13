@@ -1,6 +1,4 @@
-import { useDispatch, useSelector } from 'react-redux';
-import type { RootState } from '../store';
-import { toggleEditMode } from '../store/slices/editingToolsSlice';
+import { useSupabaseCMS } from '../hooks/useSupabaseCMS';
 
 export interface SettingsProps {
   className?: string;
@@ -8,16 +6,13 @@ export interface SettingsProps {
 
 export default function Settings(props: SettingsProps) {
   const { className } = props;
-  const isInEditMode = useSelector(
-    (state: RootState) => state.editingTools.isInEditMode
-  );
-  const dispatch = useDispatch();
+  const { isInEditMode, toggleEditMode } = useSupabaseCMS();
 
   return (
     <div className={className}>
       <button
         className="bg-blue-500 text-white p-4 rounded-full text-xs cursor-pointer"
-        onClick={() => dispatch(toggleEditMode())}
+        onClick={toggleEditMode}
       >
         {isInEditMode ? 'Close' : 'Edit'}
       </button>

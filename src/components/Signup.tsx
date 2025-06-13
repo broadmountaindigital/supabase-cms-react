@@ -1,47 +1,60 @@
 import React, { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import type { RootState, AppDispatch } from '@/store';
-import { signUp } from '@/store/slices/userSlice';
-import { useNavigate } from 'react-router-dom';
+import { useSupabaseCMS } from '../hooks/useSupabaseCMS';
+import type { AuthError, User } from '@supabase/supabase-js';
 
-const Signup: React.FC = () => {
-  const dispatch = useDispatch<AppDispatch>();
-  const { loading, error, user } = useSelector(
-    (state: RootState) => state.user
-  );
+interface SignupProps {
+  onSignupSuccess?: (user: User | null) => void;
+  onSignupError?: (error: AuthError) => void;
+  className?: string;
+}
+
+const Signup: React.FC<SignupProps> = ({
+  onSignupSuccess,
+  onSignupError,
+  className,
+}) => {
+  const { signUp, user, loading, error } = useSupabaseCMS();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const navigate = useNavigate();
 
   useEffect(() => {
-    if (user) {
-      navigate('/profile');
+    // Note: Supabase signUp might not return a user immediately
+    // if email confirmation is required. The onAuthStateChange listener
+    // in the hook will handle the user state update.
+    if (user && onSignupSuccess) {
+      onSignupSuccess(user);
     }
-  }, [user, navigate]);
+  }, [user, onSignupSuccess]);
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    dispatch(signUp({ email, password }));
+    const { data, error: signUpError } = await signUp({ email, password });
+    if (signUpError) {
+      if (onSignupError) {
+        onSignupError(signUpError);
+      }
+    } else if (onSignupSuccess) {
+      // Can be null if email confirmation is required
+      onSignupSuccess(data.user);
+    }
   }
 
   return (
     <form
       onSubmit={handleSubmit}
-      style={{
-        maxWidth: 400,
-        margin: '2rem auto',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 16,
-      }}
+      className={
+        className ??
+        'max-w-md mx-auto my-8 flex flex-col gap-4 p-4 border rounded'
+      }
     >
-      <h2>Sign Up</h2>
+      <h2 className="text-2xl font-bold mb-4">Sign Up</h2>
       <input
         type="email"
         placeholder="Email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         required
+        className="p-2 border rounded"
       />
       <input
         type="password"
@@ -49,11 +62,16 @@ const Signup: React.FC = () => {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         required
+        className="p-2 border rounded"
       />
-      <button type="submit" disabled={loading}>
+      <button
+        type="submit"
+        disabled={loading}
+        className="p-2 bg-blue-500 text-white rounded disabled:bg-gray-400"
+      >
         {loading ? 'Signing up...' : 'Sign Up'}
       </button>
-      {error && <div style={{ color: 'red' }}>{error}</div>}
+      {error && <div className="text-red-500">{error.message}</div>}
     </form>
   );
 };

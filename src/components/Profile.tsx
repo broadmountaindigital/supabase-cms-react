@@ -1,24 +1,47 @@
-import React, { useEffect } from 'react';
-import { useSelector } from 'react-redux';
-import type { RootState } from '@/store';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
+import { useSupabaseCMS } from '../hooks/useSupabaseCMS';
 
-const Profile: React.FC = () => {
-  const user = useSelector((state: RootState) => state.user.user);
-  const navigate = useNavigate();
+interface ProfileProps {
+  onSignOut?: () => void;
+  className?: string;
+}
 
-  useEffect(() => {
-    if (!user) {
-      navigate('/login');
+const Profile: React.FC<ProfileProps> = ({ onSignOut, className }) => {
+  const { user, signOut, loading } = useSupabaseCMS();
+
+  async function handleSignOut() {
+    await signOut();
+    if (onSignOut) {
+      onSignOut();
     }
-  }, [user, navigate]);
+  }
 
-  if (!user) return null;
+  if (loading) {
+    return <div className="text-center p-4">Loading profile...</div>;
+  }
+
+  if (!user) {
+    // It's up to the consumer to handle the case where there is no user.
+    // This component will simply render nothing.
+    return null;
+  }
 
   return (
-    <div style={{ maxWidth: 400, margin: '2rem auto', textAlign: 'center' }}>
-      <h2>Profile</h2>
-      <p>Email: {user.email}</p>
+    <div
+      className={
+        className ?? 'max-w-md mx-auto my-8 text-center p-4 border rounded'
+      }
+    >
+      <h2 className="text-2xl font-bold mb-4">Profile</h2>
+      <p className="mb-4">
+        Email: <span className="font-mono">{user.email}</span>
+      </p>
+      <button
+        onClick={handleSignOut}
+        className="p-2 bg-red-500 text-white rounded"
+      >
+        Sign Out
+      </button>
     </div>
   );
 };
