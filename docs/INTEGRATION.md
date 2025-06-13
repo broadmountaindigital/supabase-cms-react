@@ -63,6 +63,12 @@ The library comes with a pre-bundled CSS file that includes all the necessary st
 import '@broadmountain/supabase-cms-react/dist/style.css';
 ```
 
+### Custom Styling
+
+While the bundled stylesheet provides a great starting point, you can also apply your own custom styles. All components accept a `classNames` prop, which allows you to pass in your own CSS classes for nested elements. This gives you granular control over the look and feel, enabling you to integrate with any styling solution, such as Tailwind CSS, CSS Modules, or vanilla CSS.
+
+See the documentation for each component for a complete list of available `classNames`.
+
 ## 5. Usage Example
 
 Here is a basic example of how to use the components and the main `useSupabaseCMS` hook to create a simple CMS-powered page.
