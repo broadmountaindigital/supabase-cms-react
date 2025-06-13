@@ -1,3 +1,10 @@
+## [1.1.2](https://github.com/broadmountaindigital/a-supabase-cms/compare/v1.1.1...v1.1.2) (2025-06-13)
+
+
+### Bug Fixes
+
+* update Node.js version to 22.x in GitHub Actions workflow ([f48b3bc](https://github.com/broadmountaindigital/a-supabase-cms/commit/f48b3bc33bebf5e105a0fd0d2f1feef75bef0569))
+
 ## [1.1.1](https://github.com/broadmountaindigital/a-supabase-cms/compare/v1.1.0...v1.1.1) (2025-06-13)
 
 
