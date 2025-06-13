@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSupabaseCMS } from '../hooks/useSupabaseCMS';
 import type { AuthError, User } from '@supabase/supabase-js';
 
-interface SignupProps {
+export interface SignupProps {
   onSignupSuccess?: (user: User | null) => void;
   onSignupError?: (error: AuthError) => void;
   className?: string;

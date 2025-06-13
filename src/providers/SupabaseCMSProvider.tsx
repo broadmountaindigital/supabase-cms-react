@@ -1,13 +1,9 @@
 import React, { useMemo } from 'react';
-import { Provider as ReduxProvider } from 'react-redux';
-import { configureStore } from '@reduxjs/toolkit';
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from '@/types/database/supabase';
-import editingToolsReducer from '@/store/slices/editingToolsSlice';
-import userReducer from '@/store/slices/userSlice';
 import { SiteContext } from './SiteContext';
 
-interface SupabaseCMSProviderProps {
+export interface SupabaseCMSProviderProps {
   siteId: string;
   supabaseUrl: string;
   supabaseAnonKey: string;
@@ -25,19 +21,6 @@ export function SupabaseCMSProvider({
     return createClient<Database>(supabaseUrl, supabaseAnonKey);
   }, [supabaseUrl, supabaseAnonKey]);
 
-  // Create site-specific Redux store
-  const store = useMemo(() => {
-    return configureStore({
-      reducer: {
-        editingTools: editingToolsReducer,
-        user: userReducer,
-      },
-      preloadedState: {
-        // You can add site-specific initial state here if needed
-      },
-    });
-  }, []);
-
   // Create site context value
   const siteContextValue = useMemo(() => {
     return {
@@ -48,7 +31,7 @@ export function SupabaseCMSProvider({
 
   return (
     <SiteContext.Provider value={siteContextValue}>
-      <ReduxProvider store={store}>{children}</ReduxProvider>
+      {children}
     </SiteContext.Provider>
   );
 }

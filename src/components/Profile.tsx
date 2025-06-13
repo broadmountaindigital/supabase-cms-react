@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSupabaseCMS } from '../hooks/useSupabaseCMS';
 
-interface ProfileProps {
+export interface ProfileProps {
   onSignOut?: () => void;
   className?: string;
 }

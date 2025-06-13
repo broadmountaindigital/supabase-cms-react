@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import type { TextInputProps } from '../types/TextInputProps';
 import { useSupabaseCMS } from '../hooks/useSupabaseCMS';
 
-interface MultilineEditorProps extends TextInputProps {
+export interface MultilineEditorProps extends TextInputProps {
   rest?: React.TextareaHTMLAttributes<HTMLTextAreaElement>;
 }
 

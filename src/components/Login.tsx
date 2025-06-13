@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSupabaseCMS } from '../hooks/useSupabaseCMS';
 import type { AuthError, User } from '@supabase/supabase-js';
 
-interface LoginProps {
+export interface LoginProps {
   onLoginSuccess?: (user: User) => void;
   onLoginError?: (error: AuthError) => void;
   className?: string;
