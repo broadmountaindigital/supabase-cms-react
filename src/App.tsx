@@ -1,3 +1,6 @@
+/**
+ * TODO: this is probably not needed.
+ */
 function App() {
   return (
     <div>
