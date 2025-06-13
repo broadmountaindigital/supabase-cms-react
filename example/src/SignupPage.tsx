@@ -14,13 +14,8 @@ export function SignupPage() {
   }, [user, navigate]);
 
   return (
-    <div className="container">
-      <header>
-        <h1>Sign Up</h1>
-      </header>
-      <main>
-        <Signup />
-      </main>
+    <div className="min-h-screen bg-base-200 flex items-center justify-center">
+      <Signup />
     </div>
   );
 }

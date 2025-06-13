@@ -53,7 +53,8 @@
     "access": "public"
   },
   "scripts": {
-    "dev": "vite",
+    "dev": "npm-run-all2 -p dev:*",
+    "dev:vite": "vite",
     "dev:example": "npm run dev --prefix example",
     "build": "tsc -b && vite build",
     "build:lib": "npm run clean && npm run build:types && vite build --config vite.lib.config.ts",
@@ -80,6 +81,7 @@
     "@types/react-dom": "^19.1.2",
     "@types/react-router-dom": "^5.3.3",
     "@vitejs/plugin-react": "^4.4.1",
+    "daisyui": "5.0.43",
     "dotenv": "16.5.0",
     "eslint": "^9.25.0",
     "eslint-config-prettier": "10.1.5",
@@ -87,6 +89,7 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^16.0.0",
+    "npm-run-all2": "8.0.4",
     "prettier": "3.5.3",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
