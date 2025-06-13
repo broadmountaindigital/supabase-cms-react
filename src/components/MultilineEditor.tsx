@@ -30,7 +30,7 @@ export default function MultilineEditor(props: MultilineEditorProps) {
 
   useAutosizeTextArea(textAreaRef.current, value);
 
-  function handleChange(event: React.ChangeEvent<HTMLTextAreaElement>) {
+  function onFieldInput(event: React.ChangeEvent<HTMLTextAreaElement>) {
     const newValue = event.target.value;
     const lineCount = newValue.split('\n').length;
     const charCount = newValue.length;
@@ -77,7 +77,7 @@ export default function MultilineEditor(props: MultilineEditorProps) {
     <textarea
       ref={textAreaRef}
       value={value}
-      onChange={handleChange}
+      onChange={onFieldInput}
       rows={1}
       className={className}
       style={{ ...resetStyles, ...rest?.style }}
