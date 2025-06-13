@@ -1,7 +1,9 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
-import type { Database } from '@/types/database/supabase';
+import type { User, AuthError } from '@supabase/supabase-js';
+import type { Database } from '../types/database/supabase';
 import { SiteContext } from './SiteContext';
+import { CmsContext } from './CmsContext';
 
 /**
  * Props for the SupabaseCMSProvider.
@@ -19,25 +21,8 @@ export interface SupabaseCMSProviderProps {
 
 /**
  * The main provider for the Supabase CMS.
- * It creates the Supabase client and provides it, along with the siteId, to all child components.
+ * It creates the Supabase client and provides it, along with the siteId and shared CMS state, to all child components.
  * Wrap your application with this provider to enable CMS functionality.
- *
- * @example
- * ```tsx
- * import { SupabaseCMSProvider } from '@supabase-cms/react';
- *
- * function App() {
- *   return (
- *     <SupabaseCMSProvider
- *       siteId="YOUR_SITE_ID"
- *       supabaseUrl="YOUR_SUPABASE_URL"
- *       supabaseAnonKey="YOUR_SUPABASE_ANON_KEY"
- *     >
- *       <YourApp />
- *     </SupabaseCMSProvider>
- *   );
- * }
- * ```
  */
 export function SupabaseCMSProvider({
   siteId,
@@ -45,22 +30,66 @@ export function SupabaseCMSProvider({
   supabaseAnonKey,
   children,
 }: SupabaseCMSProviderProps) {
-  // Create site-specific Supabase client
+  // --- Client and Site Context ---
   const supabase = useMemo(() => {
     return createClient<Database>(supabaseUrl, supabaseAnonKey);
   }, [supabaseUrl, supabaseAnonKey]);
 
-  // Create site context value
   const siteContextValue = useMemo(() => {
-    return {
-      siteId,
-      supabase,
-    };
+    return { siteId, supabase };
   }, [siteId, supabase]);
+
+  // --- Shared CMS State ---
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<AuthError | null>(null);
+  const [isInEditMode, setIsInEditMode] = useState(false);
+
+  // --- Auth Listener ---
+  useEffect(() => {
+    async function getInitialUser() {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      setUser(session?.user ?? null);
+      setLoading(false);
+    }
+    getInitialUser();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      setError(null);
+    });
+
+    return () => {
+      subscription?.unsubscribe();
+    };
+  }, [supabase]);
+
+  // --- State Updaters ---
+  function toggleEditMode() {
+    setIsInEditMode((prev) => !prev);
+  }
+
+  // --- CMS Context Value ---
+  const cmsContextValue = useMemo(
+    () => ({
+      user,
+      loading,
+      error,
+      isInEditMode,
+      toggleEditMode,
+    }),
+    [user, loading, error, isInEditMode]
+  );
 
   return (
     <SiteContext.Provider value={siteContextValue}>
-      {children}
+      <CmsContext.Provider value={cmsContextValue}>
+        {children}
+      </CmsContext.Provider>
     </SiteContext.Provider>
   );
 }

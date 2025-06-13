@@ -3,26 +3,16 @@ import {
   MultilineEditor,
   Profile,
   Settings,
-  SupabaseCMSProvider,
   useSupabaseCMS,
 } from '@broadmountain/supabase-cms-react';
+import { Link, Route, Routes } from 'react-router-dom';
 import '../src/index.css';
 import './App.css';
-
-// Get Supabase credentials from environment variables
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error(
-    "Supabase URL and Anon Key must be provided in .env file. Please create an 'example/.env' file."
-  );
-}
+import { SignupPage } from './SignupPage';
 
 // A simple component to display the main content
-function CmsContent() {
-  const { user, loading, error, isInEditMode, toggleEditMode } =
-    useSupabaseCMS();
+function HomePage() {
+  const { user, loading, error, isInEditMode } = useSupabaseCMS();
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error.message}</p>;
@@ -35,24 +25,26 @@ function CmsContent() {
         </header>
         <main>
           <Login />
+          <p style={{ marginTop: '1rem' }}>
+            Need an account? <Link to="/signup">Sign Up</Link>
+          </p>
         </main>
       </div>
     );
   }
+
+  console.info('is in edit mode:', isInEditMode);
 
   return (
     <div className="container">
       <header>
         <h1>Supabase CMS Demo</h1>
         <div className="controls">
-          <button onClick={toggleEditMode}>
-            {isInEditMode ? 'Disable Edit Mode' : 'Enable Edit Mode'}
-          </button>
+          <Settings />
           <Profile />
         </div>
       </header>
       <main>
-        <Settings />
         <section>
           <h2>Editable Content</h2>
           <p>This is a demonstration of the MultilineEditor component.</p>
@@ -68,13 +60,10 @@ function CmsContent() {
 
 function App() {
   return (
-    <SupabaseCMSProvider
-      supabaseUrl={supabaseUrl}
-      supabaseAnonKey={supabaseAnonKey}
-      siteId="1"
-    >
-      <CmsContent />
-    </SupabaseCMSProvider>
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/signup" element={<SignupPage />} />
+    </Routes>
   );
 }
 
