@@ -13,8 +13,13 @@ export interface SignupProps {
   onSignupSuccess?: (user: User | null) => void;
   /** Callback function to be called on signup error. */
   onSignupError?: (error: AuthError) => void;
-  /** Optional CSS class name for custom styling. */
-  className?: string;
+  /** Optional classnames for nested elements */
+  classNames?: {
+    formClassName?: string;
+    inputClassName?: string;
+    buttonClassName?: string;
+    errorClassName?: string;
+  };
 }
 
 /**
@@ -24,7 +29,7 @@ export interface SignupProps {
 const Signup: React.FC<SignupProps> = ({
   onSignupSuccess,
   onSignupError,
-  className,
+  classNames,
 }) => {
   const { signUp, user, loading, error } = useSupabaseCMS();
   const [email, setEmail] = useState('');
@@ -53,13 +58,7 @@ const Signup: React.FC<SignupProps> = ({
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className={
-        className ??
-        'max-w-md mx-auto my-8 flex flex-col gap-4 p-4 border rounded'
-      }
-    >
+    <form onSubmit={handleSubmit} className={classNames?.formClassName ?? ''}>
       <h2 className="text-2xl font-bold mb-4">Sign Up</h2>
       <input
         type="email"
@@ -67,7 +66,7 @@ const Signup: React.FC<SignupProps> = ({
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         required
-        className="p-2 border rounded"
+        className={classNames?.inputClassName ?? 'p-2 border rounded mb-4'}
       />
       <input
         type="password"
@@ -75,16 +74,18 @@ const Signup: React.FC<SignupProps> = ({
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         required
-        className="p-2 border rounded"
+        className={classNames?.inputClassName ?? 'p-2 border rounded mb-4'}
       />
       <button
         type="submit"
         disabled={loading}
-        className="p-2 bg-blue-500 text-white rounded disabled:bg-gray-400"
+        className={classNames?.buttonClassName ?? 'btn btn-primary w-full'}
       >
         {loading ? 'Signing up...' : 'Sign Up'}
       </button>
-      {error && <div className="text-red-500">{error.message}</div>}
+      {error && (
+        <div className={classNames?.errorClassName ?? ''}>{error.message}</div>
+      )}
     </form>
   );
 };

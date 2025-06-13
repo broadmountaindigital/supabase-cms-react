@@ -81,16 +81,9 @@ export default App;
 
 ## Styling
 
-This library uses Tailwind CSS for styling. A pre-built CSS file is included with the package so you don't have to set up Tailwind yourself.
-
-To use the styles, simply import the stylesheet into your application's entry point:
-
-```tsx
-// In your src/main.tsx or App.tsx
-import '@broadmountain/supabase-cms-react/dist/style.css';
-```
-
-This will apply all the necessary styles for the components to render correctly.
+This library allows you to bring your own styles. Components allow className props
+to be passed so you can add your own selectors be it through Tailwind, vanilla CSS,
+or whatever you like.
 
 ---
 

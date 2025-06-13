@@ -7,15 +7,20 @@ import { useSupabaseCMS } from '../hooks/useSupabaseCMS';
 export interface ProfileProps {
   /** Callback function to be called after the user signs out. */
   onSignOut?: () => void;
-  /** Optional CSS class name for custom styling. */
-  className?: string;
+  /** Optional classnames for nested elements */
+  classNames?: {
+    containerClassName?: string;
+    buttonClassName?: string;
+    h2ClassName?: string;
+    textClassName?: string;
+  };
 }
 
 /**
  * A component that displays the current user's profile information
  * and provides a sign-out button.
  */
-const Profile: React.FC<ProfileProps> = ({ onSignOut, className }) => {
+const Profile: React.FC<ProfileProps> = ({ onSignOut, classNames }) => {
   const { user, signOut, loading } = useSupabaseCMS();
 
   async function handleSignOut() {
@@ -36,19 +41,12 @@ const Profile: React.FC<ProfileProps> = ({ onSignOut, className }) => {
   }
 
   return (
-    <div
-      className={
-        className ?? 'max-w-md mx-auto my-8 text-center p-4 border rounded'
-      }
-    >
-      <h2 className="text-2xl font-bold mb-4">Profile</h2>
-      <p className="mb-4">
-        Email: <span className="font-mono">{user.email}</span>
+    <div className={classNames?.containerClassName}>
+      <h2 className={classNames?.h2ClassName}>Profile</h2>
+      <p className={classNames?.textClassName}>
+        Email: <span>{user.email}</span>
       </p>
-      <button
-        onClick={handleSignOut}
-        className="p-2 bg-red-500 text-white rounded"
-      >
+      <button onClick={handleSignOut} className={classNames?.buttonClassName}>
         Sign Out
       </button>
     </div>

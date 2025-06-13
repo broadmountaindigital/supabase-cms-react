@@ -10,8 +10,14 @@ export interface LoginProps {
   onLoginSuccess?: (user: User) => void;
   /** Callback function to be called on login error. */
   onLoginError?: (error: AuthError) => void;
-  /** Optional CSS class name for custom styling. */
-  className?: string;
+  /** Optional classnames for nested elements */
+  classNames?: {
+    formClassName?: string;
+    h2ClassName?: string;
+    inputClassName?: string;
+    buttonClassName?: string;
+    errorClassName?: string;
+  };
 }
 
 /**
@@ -21,7 +27,7 @@ export interface LoginProps {
 const Login: React.FC<LoginProps> = ({
   onLoginSuccess,
   onLoginError,
-  className,
+  classNames,
 }) => {
   const { signIn, user, loading, error } = useSupabaseCMS();
   const [email, setEmail] = useState('');
@@ -42,21 +48,15 @@ const Login: React.FC<LoginProps> = ({
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className={
-        className ??
-        'max-w-md mx-auto my-8 flex flex-col gap-4 p-4 border rounded'
-      }
-    >
-      <h2 className="text-2xl font-bold mb-4">Login</h2>
+    <form onSubmit={handleSubmit} className={classNames?.formClassName}>
+      <h2 className={classNames?.h2ClassName}>Login</h2>
       <input
         type="email"
         placeholder="Email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         required
-        className="p-2 border rounded"
+        className={classNames?.inputClassName}
       />
       <input
         type="password"
@@ -64,16 +64,18 @@ const Login: React.FC<LoginProps> = ({
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         required
-        className="p-2 border rounded"
+        className={classNames?.inputClassName}
       />
       <button
         type="submit"
         disabled={loading}
-        className="p-2 bg-blue-500 text-white rounded disabled:bg-gray-400"
+        className={classNames?.buttonClassName}
       >
         {loading ? 'Logging in...' : 'Login'}
       </button>
-      {error && <div className="text-red-500">{error.message}</div>}
+      {error && (
+        <div className={classNames?.errorClassName}>{error.message}</div>
+      )}
     </form>
   );
 };

@@ -4,21 +4,23 @@ import { useSupabaseCMS } from '../hooks/useSupabaseCMS';
  * Props for the Settings component.
  */
 export interface SettingsProps {
-  /** Optional CSS class name for custom styling. */
-  className?: string;
+  /** Optional classnames for nested elements */
+  classNames?: {
+    buttonClassName?: string;
+    containerClassName?: string;
+  };
 }
 
 /**
  * A component that renders a button to toggle the CMS edit mode.
  */
-export default function Settings(props: SettingsProps) {
-  const { className } = props;
+export default function Settings({ classNames }: SettingsProps) {
   const { isInEditMode, toggleEditMode } = useSupabaseCMS();
 
   return (
-    <div className={className}>
+    <div className={classNames?.containerClassName ?? ''}>
       <button
-        className="bg-blue-500 text-white p-4 rounded-full text-xs cursor-pointer"
+        className={classNames?.buttonClassName ?? ''}
         onClick={toggleEditMode}
       >
         {isInEditMode ? 'Close' : 'Edit'}
