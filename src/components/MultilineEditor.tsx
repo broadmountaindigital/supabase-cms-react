@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import type { TextInputProps } from '../types/TextInputProps';
-import { useSupabaseCMS } from '../hooks/useSupabaseCMS';
+import { useAutosizeTextArea, useSupabaseCMS } from '../hooks';
 
 /**
  * Props for the MultilineEditor component.
@@ -26,6 +26,9 @@ export default function MultilineEditor(props: MultilineEditorProps) {
     maxCharacterCount,
   } = props;
   const [value, setValue] = useState(defaultValue);
+  const textAreaRef = useRef<HTMLTextAreaElement>(null);
+
+  useAutosizeTextArea(textAreaRef.current, value);
 
   function handleChange(event: React.ChangeEvent<HTMLTextAreaElement>) {
     const newValue = event.target.value;
@@ -55,44 +58,34 @@ export default function MultilineEditor(props: MultilineEditorProps) {
     }
   }
 
-  function handleKeyDown(event: React.KeyboardEvent<HTMLTextAreaElement>) {
-    const isEnter = event.key === 'Enter';
-    const isPrintable = event.key.length === 1;
-    const lineCount = value.split('\n').length;
-    const charCount = value.length;
-
-    if (typeof maxLines === 'number' && isEnter && lineCount >= maxLines) {
-      console.log(`Cannot add more than ${maxLines} lines.`);
-      event.preventDefault();
-      return;
-    }
-
-    if (
-      typeof maxCharacterCount === 'number' &&
-      isPrintable &&
-      charCount >= maxCharacterCount
-    ) {
-      console.log(`Cannot add more than ${maxCharacterCount} characters.`);
-      event.preventDefault();
-    }
-  }
-
-  const lineCount = value.split('\n').length;
-  const rows = Math.max(
-    1,
-    typeof maxLines === 'number' ? Math.min(lineCount, maxLines) : lineCount
-  );
+  const resetStyles: React.CSSProperties = {
+    border: 'none',
+    outline: 'none',
+    background: 'transparent',
+    padding: 0,
+    margin: 0,
+    resize: 'none',
+    font: 'inherit',
+    color: 'inherit',
+    width: '100%',
+    overflow: 'hidden', // Hide scrollbar
+    boxSizing: 'border-box',
+    display: 'block',
+  };
 
   return isInEditMode ? (
     <textarea
+      ref={textAreaRef}
       value={value}
       onChange={handleChange}
-      onKeyDown={handleKeyDown}
-      className={className ?? ''}
-      rows={rows}
+      rows={1}
+      className={className}
+      style={{ ...resetStyles, ...rest?.style }}
       {...rest}
     />
   ) : (
-    <>{value}</>
+    <span className={className} style={{ whiteSpace: 'pre-wrap' }}>
+      {value}
+    </span>
   );
 }

@@ -1,4 +1,4 @@
-// Export custom hooks
+export { default as useAutosizeTextArea } from './useAutosizeTextArea';
 export { useSupabaseCMS } from './useSupabaseCMS';
 export {
   useSitesService,

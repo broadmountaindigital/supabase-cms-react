@@ -49,12 +49,11 @@ function HomePage() {
         <section className="p-4 border rounded-lg">
           <h2 className="text-xl font-semibold mb-2">Editable Content</h2>
           <p className="mb-4">
-            This is a demonstration of the MultilineEditor component.
+            <MultilineEditor
+              defaultValue="This is some editable content. You can change it!"
+              rest={{ id: 'example-content' }}
+            />
           </p>
-          <MultilineEditor
-            defaultValue="Initial content for the editor."
-            rest={{ id: 'example-content' }}
-          />
         </section>
       </main>
     </div>
