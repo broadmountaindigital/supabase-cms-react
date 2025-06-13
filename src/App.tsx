@@ -1,21 +1,10 @@
-import Navbar from './components/Navbar';
-import Home from './components/Home';
-import Signup from './components/Signup';
-import Login from './components/Login';
-import Profile from './components/Profile';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-
 function App() {
   return (
-    <Router>
-      <Navbar />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/profile" element={<Profile />} />
-      </Routes>
-    </Router>
+    <div>
+      <h1>Supabase CMS Library</h1>
+      <p>This is the source directory for the library components.</p>
+      <p>See the /example directory for a working implementation.</p>
+    </div>
   );
 }
 
