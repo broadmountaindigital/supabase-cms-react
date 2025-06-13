@@ -125,12 +125,10 @@ Convert the current Supabase CMS application into a reusable NPM package that ca
 
 ### 4.2 Example Applications
 
-- [ ] Create example React application
-  - [ ] Show basic integration
-  - [ ] Demonstrate MultilineEditor usage
-  - [ ] Show edit mode functionality
-- [ ] Create CodeSandbox examples
-- [ ] Create Storybook stories for components
+- [x] Create example React application
+  - [x] Show basic integration
+  - [x] Demonstrate MultilineEditor usage
+  - [x] Show edit mode functionality
 
 ### 4.3 Integration Guide
 

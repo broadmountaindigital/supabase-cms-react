@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect } from 'react';
-import { useSiteContext } from '@/providers/useSiteContext';
-import { SiteAwareServiceFactory } from '@/lib/services/SiteAwareServiceFactory';
+import { useSiteContext } from '../providers/useSiteContext';
+import { SiteAwareServiceFactory } from '../lib/services/SiteAwareServiceFactory';
 import type {
   AuthError,
   AuthResponse,
