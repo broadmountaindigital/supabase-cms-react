@@ -1,3 +1,11 @@
+# [1.2.0](https://github.com/broadmountaindigital/supabase-cms-react/compare/v1.1.3...v1.2.0) (2025-06-13)
+
+
+### Features
+
+* add CSS class props to library components ([69955f5](https://github.com/broadmountaindigital/supabase-cms-react/commit/69955f58d096d121b9f679a0b051c0c2d3a9be5a))
+* implement Supabase CMS with routing and authentication features ([3ec9d37](https://github.com/broadmountaindigital/supabase-cms-react/commit/3ec9d3730a8eb20f329e3cdf3341f1e56b2ea58f))
+
 ## [1.1.3](https://github.com/broadmountaindigital/supabase-cms-react/compare/v1.1.2...v1.1.3) (2025-06-13)
 
 
