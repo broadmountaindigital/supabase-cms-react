@@ -1,9 +1,10 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
 import { resolve } from 'path';
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), tailwindcss()],
   build: {
     lib: {
       entry: {
@@ -30,6 +31,7 @@ export default defineConfig({
         'react-router-dom',
       ],
       output: {
+        assetFileNames: 'style.[ext]', // Output CSS to style.css
         globals: {
           react: 'React',
           'react-dom': 'ReactDOM',
@@ -45,7 +47,7 @@ export default defineConfig({
     outDir: 'dist',
     emptyOutDir: true,
     sourcemap: true,
-    minify: false, // Keep readable for debugging
+    minify: false,
   },
   resolve: {
     alias: {

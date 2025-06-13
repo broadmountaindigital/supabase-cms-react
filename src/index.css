@@ -1,24 +1,2 @@
-@import 'tailwindcss';
-
-/* Reset all textarea styles */
-textarea {
-  all: unset;
-  box-sizing: border-box;
-  background: none;
-  color: inherit;
-  font: inherit;
-  margin: 0;
-  padding: 0;
-  border: none;
-  outline: none;
-  focus: ring-0;
-  resize: none;
-  height: auto;
-  width: 100%;
-  field-sizing: content;
-  line-height: normal;
-}
-
-h1 {
-  @apply text-2xl font-bold;
-}
+@import "tailwindcss/preflight";
+@import "tailwindcss/utilities";

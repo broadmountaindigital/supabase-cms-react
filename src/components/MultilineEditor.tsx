@@ -1,16 +1,13 @@
 import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
-import type { RootState } from '../store';
 import type { TextInputProps } from '../types/TextInputProps';
+import { useSupabaseCMS } from '../hooks/useSupabaseCMS';
 
 interface MultilineEditorProps extends TextInputProps {
   rest?: React.TextareaHTMLAttributes<HTMLTextAreaElement>;
 }
 
 export default function MultilineEditor(props: MultilineEditorProps) {
-  const isInEditMode = useSelector(
-    (state: RootState) => state.editingTools.isInEditMode
-  );
+  const { isInEditMode } = useSupabaseCMS();
 
   const {
     defaultValue = '',

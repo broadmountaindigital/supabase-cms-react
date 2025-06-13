@@ -41,7 +41,8 @@
       "types": "./dist/types.d.ts",
       "import": "./dist/types.es.js",
       "require": "./dist/types.js"
-    }
+    },
+    "./style.css": "./dist/style.css"
   },
   "files": [
     "dist",
@@ -66,14 +67,11 @@
     "react-redux": "^9.0.0",
     "@supabase/supabase-js": "^2.0.0"
   },
-  "dependencies": {
-    "@tailwindcss/vite": "4.1.7",
-    "tailwindcss": "4.1.7"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@eslint/js": "^9.25.0",
-    "@reduxjs/toolkit": "^2.8.2",
-    "@supabase/supabase-js": "2.49.8",
+    "@tailwindcss/vite": "4.1.7",
+    "tailwindcss": "4.1.7",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
     "@types/react-router-dom": "^5.3.3",

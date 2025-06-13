@@ -1,3 +1,4 @@
+import './index.css';
 // Main library exports
 export * from './components';
 export * from './providers';
