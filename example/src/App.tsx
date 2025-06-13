@@ -50,6 +50,7 @@ function HomePage() {
           <h2 className="text-xl font-semibold mb-2">Editable Content</h2>
           <p className="mb-4">
             <MultilineEditor
+              fieldName="some_editable_content"
               defaultValue="This is some editable content. You can change it!"
               rest={{ id: 'example-content' }}
             />

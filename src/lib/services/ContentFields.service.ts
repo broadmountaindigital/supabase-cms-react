@@ -27,6 +27,18 @@ class ContentFieldsService {
     return data ?? null;
   }
 
+  async getByFieldName(fieldName: string): Promise<ContentFieldRow | null> {
+    const { data, error } = await this._supabase
+      .from('content_fields')
+      .select('*')
+      .eq('field_name', fieldName)
+      .single();
+    if (error) {
+      console.error('Error fetching content field by id:', error);
+    }
+    return data ?? null;
+  }
+
   async create(
     contentField: TablesInsert<'content_fields'>
   ): Promise<ContentFieldRow | null> {
