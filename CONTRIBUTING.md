@@ -59,3 +59,4 @@ npm run test:coverage        # Run tests with coverage
 # Publishing (to be added)
 npm run prepublishOnly       # Pre-publish checks
 npm run release              # Release new version
+```

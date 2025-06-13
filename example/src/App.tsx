@@ -5,24 +5,27 @@ import {
   Settings,
   SupabaseCMSProvider,
   useSupabaseCMS,
-} from '@broadmountain/supabase-cms-react'
-import '../src/index.css'
-import './App.css'
+} from '@broadmountain/supabase-cms-react';
+import '../src/index.css';
+import './App.css';
 
 // Get Supabase credentials from environment variables
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error("Supabase URL and Anon Key must be provided in .env file. Please create an 'example/.env' file.")
+  throw new Error(
+    "Supabase URL and Anon Key must be provided in .env file. Please create an 'example/.env' file."
+  );
 }
 
 // A simple component to display the main content
 function CmsContent() {
-  const { user, loading, error, isInEditMode, toggleEditMode } = useSupabaseCMS()
+  const { user, loading, error, isInEditMode, toggleEditMode } =
+    useSupabaseCMS();
 
-  if (loading) return <p>Loading...</p>
-  if (error) return <p>Error: {error.message}</p>
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error.message}</p>;
 
   if (!user) {
     return (
@@ -34,7 +37,7 @@ function CmsContent() {
           <Login />
         </main>
       </div>
-    )
+    );
   }
 
   return (
@@ -53,11 +56,14 @@ function CmsContent() {
         <section>
           <h2>Editable Content</h2>
           <p>This is a demonstration of the MultilineEditor component.</p>
-          <MultilineEditor defaultValue="Initial content for the editor." rest={{ id: 'example-content' }} />
+          <MultilineEditor
+            defaultValue="Initial content for the editor."
+            rest={{ id: 'example-content' }}
+          />
         </section>
       </main>
     </div>
-  )
+  );
 }
 
 function App() {
@@ -69,7 +75,7 @@ function App() {
     >
       <CmsContent />
     </SupabaseCMSProvider>
-  )
+  );
 }
 
-export default App
+export default App;

@@ -39,7 +39,7 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error("Supabase credentials must be provided in your .env file.");
+  throw new Error('Supabase credentials must be provided in your .env file.');
 }
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
@@ -78,7 +78,8 @@ import {
 } from '@broadmountain/supabase-cms-react';
 
 function MyCmsPage() {
-  const { user, loading, error, isInEditMode, toggleEditMode } = useSupabaseCMS();
+  const { user, loading, error, isInEditMode, toggleEditMode } =
+    useSupabaseCMS();
 
   if (loading) {
     return <p>Loading...</p>;
@@ -114,14 +115,12 @@ function MyCmsPage() {
       <main>
         <h2>About Us</h2>
         <p>This is a section with editable content.</p>
-        
+
         {/* 
           The MultilineEditor becomes a textarea when in edit mode.
           The `defaultValue` will be displayed initially and when not in edit mode.
         */}
-        <MultilineEditor
-          defaultValue="We are a company dedicated to making content management easy."
-        />
+        <MultilineEditor defaultValue="We are a company dedicated to making content management easy." />
       </main>
     </div>
   );
@@ -133,6 +132,7 @@ export default MyCmsPage;
 ## 6. Authentication Flow
 
 The library handles the authentication flow for you.
+
 - The `Login` component provides a simple email/password sign-in form.
 - The `Signup` component (not shown above, but available for import) provides a sign-up form.
 - The `Profile` component displays the current user's avatar and provides a "Sign Out" button.

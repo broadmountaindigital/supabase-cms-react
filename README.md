@@ -6,11 +6,11 @@ A React library that provides content management capabilities for websites using
 
 ## Features
 
--   **Site-Specific CMS**: Manage content for multiple sites from a single Supabase backend.
--   **Component-Based**: A set of reusable React components (`Login`, `Signup`, `MultilineEditor`, etc.).
--   **Custom Hooks**: Easy-to-use hooks (`useSupabaseCMS`) to access auth, services, and state.
--   **Styling Included**: Comes with a bundled CSS file for easy setup.
--   **TypeScript Ready**: Fully typed for a better developer experience.
+- **Site-Specific CMS**: Manage content for multiple sites from a single Supabase backend.
+- **Component-Based**: A set of reusable React components (`Login`, `Signup`, `MultilineEditor`, etc.).
+- **Custom Hooks**: Easy-to-use hooks (`useSupabaseCMS`) to access auth, services, and state.
+- **Styling Included**: Comes with a bundled CSS file for easy setup.
+- **TypeScript Ready**: Fully typed for a better developer experience.
 
 ## Installation
 
@@ -55,7 +55,11 @@ function YourAppContent() {
     <div>
       <header>
         <h1>My Awesome Website</h1>
-        {user ? <Profile onSignOut={() => console.log('Signed out!')} /> : <Login />}
+        {user ? (
+          <Profile onSignOut={() => console.log('Signed out!')} />
+        ) : (
+          <Login />
+        )}
       </header>
       <main>
         <h2>Editable Content</h2>

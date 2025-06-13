@@ -5,3 +5,4 @@ dist
 db
 exports
 packages/server/src/migration/*
+docs/api
