@@ -1,0 +1,21 @@
+# 1.0.0 (2025-06-13)
+
+
+### Features
+
+* add base supabase schema ([69c76ca](https://github.com/broadmountaindigital/a-supabase-cms/commit/69c76ca9f81e237701f013816f87d448c80e6647))
+* add basic content services ([1f8d87b](https://github.com/broadmountaindigital/a-supabase-cms/commit/1f8d87b678083567ad6d8bc6b24c9f6b1a5c83be))
+* add content_field_page_relations table ([d0e78e0](https://github.com/broadmountaindigital/a-supabase-cms/commit/d0e78e054d36f8ea417da8200fb0d4090bedd674))
+* add CONTRIBUTING.md and update README.md with installation and usage instructions ([4625a93](https://github.com/broadmountaindigital/a-supabase-cms/commit/4625a9319af21e737b1d7b7ee3c5541d392aee15))
+* add Navbar component and enhance Login component with user redirection ([c1f34ee](https://github.com/broadmountaindigital/a-supabase-cms/commit/c1f34ee82ca7a809e13f759d131103493fe62572))
+* add Supabase CMS integration guide and update npm package plan with completed tasks ([f75738c](https://github.com/broadmountaindigital/a-supabase-cms/commit/f75738cd24eea92a3154425f17d8c82819935092))
+* basic linter rules ([74874c5](https://github.com/broadmountaindigital/a-supabase-cms/commit/74874c5d9da1f59b17991f76b663a2371cf06adb))
+* enhance documentation and improve component props ([813822e](https://github.com/broadmountaindigital/a-supabase-cms/commit/813822ebff0bc81ae086bf47935c49cadcf9c7ef))
+* enhance NPM package with Tailwind CSS integration and update MultilineEditor component ([84cc7d2](https://github.com/broadmountaindigital/a-supabase-cms/commit/84cc7d28871a27a9103e74edcc363a0d46cf2638))
+* export component props interfaces for Login, Signup, Profile, and MultilineEditor; update type definitions in index.ts ([3c1d51c](https://github.com/broadmountaindigital/a-supabase-cms/commit/3c1d51c020b1106b6a5b6c47da177c23e64f9534))
+* implement custom hooks and services for Supabase CMS ([b1109e5](https://github.com/broadmountaindigital/a-supabase-cms/commit/b1109e5b84d1ba24afdaf407fc08b8da3f38fc5d))
+* implement site export functionality with related pages and content fields ([7e72afc](https://github.com/broadmountaindigital/a-supabase-cms/commit/7e72afcb9932da464a459c87e3512f4e65b79e68))
+* implement user authentication flow with signup, login, and profile components ([b09822d](https://github.com/broadmountaindigital/a-supabase-cms/commit/b09822d31319783a3b3ae70657fb51f5f7df8c8d))
+* initialize example project with Supabase CMS integration ([10a9b7c](https://github.com/broadmountaindigital/a-supabase-cms/commit/10a9b7c045bcf416b1da59ba4335a8325edb8979))
+* integrate Redux for editing mode management and add Settings component ([846ad29](https://github.com/broadmountaindigital/a-supabase-cms/commit/846ad2975f5277f60575055aa1125bb56e491b1b))
+* refactor authentication components to use Supabase hooks and improve user handling ([f5f1f32](https://github.com/broadmountaindigital/a-supabase-cms/commit/f5f1f321eb61fe05fb9027d38ce035798ae41742))
