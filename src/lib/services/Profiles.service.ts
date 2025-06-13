@@ -1,11 +1,11 @@
 import { supabase } from '@/lib/utils/supabase';
-import type { Profile } from '@/types/database';
+import type { ProfileRow } from '@/types/database';
 import type { TablesInsert, TablesUpdate } from '@/types/database/supabase';
 
 class ProfilesService {
   constructor(private readonly _supabase = supabase) {}
 
-  async getAll(): Promise<Profile[]> {
+  async getAll(): Promise<ProfileRow[]> {
     const { data, error } = await this._supabase.from('profiles').select('*');
     if (error) {
       console.error('Error fetching profiles:', error);
@@ -13,7 +13,7 @@ class ProfilesService {
     return data ?? [];
   }
 
-  async getById(id: string): Promise<Profile | null> {
+  async getById(id: string): Promise<ProfileRow | null> {
     const { data, error } = await this._supabase
       .from('profiles')
       .select('*')
@@ -25,7 +25,7 @@ class ProfilesService {
     return data ?? null;
   }
 
-  async create(profile: TablesInsert<'profiles'>): Promise<Profile | null> {
+  async create(profile: TablesInsert<'profiles'>): Promise<ProfileRow | null> {
     const { data, error } = await this._supabase
       .from('profiles')
       .insert(profile)
@@ -40,7 +40,7 @@ class ProfilesService {
   async update(
     id: string,
     updates: TablesUpdate<'profiles'>
-  ): Promise<Profile | null> {
+  ): Promise<ProfileRow | null> {
     const { data, error } = await this._supabase
       .from('profiles')
       .update(updates)

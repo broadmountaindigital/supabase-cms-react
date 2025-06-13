@@ -1,11 +1,11 @@
 import { supabase } from '@/lib/utils/supabase';
-import type { SitePage } from '@/types/database';
+import type { SitePageRow } from '@/types/database';
 import type { TablesInsert, TablesUpdate } from '@/types/database/supabase';
 
 class SitePagesService {
   constructor(private readonly _supabase = supabase) {}
 
-  async getAll(): Promise<SitePage[]> {
+  async getAll(): Promise<SitePageRow[]> {
     const { data, error } = await this._supabase.from('site_pages').select('*');
     if (error) {
       console.error('Error fetching site pages:', error);
@@ -13,7 +13,7 @@ class SitePagesService {
     return data ?? [];
   }
 
-  async getById(id: string): Promise<SitePage | null> {
+  async getById(id: string): Promise<SitePageRow | null> {
     const { data, error } = await this._supabase
       .from('site_pages')
       .select('*')
@@ -25,7 +25,9 @@ class SitePagesService {
     return data ?? null;
   }
 
-  async create(sitePage: TablesInsert<'site_pages'>): Promise<SitePage | null> {
+  async create(
+    sitePage: TablesInsert<'site_pages'>
+  ): Promise<SitePageRow | null> {
     const { data, error } = await this._supabase
       .from('site_pages')
       .insert(sitePage)
@@ -40,7 +42,7 @@ class SitePagesService {
   async update(
     id: string,
     updates: TablesUpdate<'site_pages'>
-  ): Promise<SitePage | null> {
+  ): Promise<SitePageRow | null> {
     const { data, error } = await this._supabase
       .from('site_pages')
       .update(updates)

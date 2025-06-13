@@ -1,12 +1,12 @@
-import type { Site, SitePage, ContentField } from './database';
+import type { SiteRow, SitePageRow, ContentFieldRow } from './database';
 
-export type ExportedPage = SitePage & {
-  fields: ContentField[];
+export type ExportedPage = SitePageRow & {
+  fields: ContentFieldRow[];
 };
 
 export interface ExportedSite {
-  site: Site & {
+  site: SiteRow & {
     pages: ExportedPage[];
-    contentFields: ContentField[];
+    contentFields: ContentFieldRow[];
   };
 }

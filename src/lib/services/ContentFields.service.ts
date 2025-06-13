@@ -1,11 +1,11 @@
 import { supabase } from '@/lib/utils/supabase';
-import type { ContentField } from '@/types/database';
+import type { ContentFieldRow } from '@/types/database';
 import type { TablesInsert, TablesUpdate } from '@/types/database/supabase';
 
 class ContentFieldsService {
   constructor(private readonly _supabase = supabase) {}
 
-  async getAll(): Promise<ContentField[]> {
+  async getAll(): Promise<ContentFieldRow[]> {
     const { data, error } = await this._supabase
       .from('content_fields')
       .select('*');
@@ -15,7 +15,7 @@ class ContentFieldsService {
     return data ?? [];
   }
 
-  async getById(id: string): Promise<ContentField | null> {
+  async getById(id: string): Promise<ContentFieldRow | null> {
     const { data, error } = await this._supabase
       .from('content_fields')
       .select('*')
@@ -29,7 +29,7 @@ class ContentFieldsService {
 
   async create(
     contentField: TablesInsert<'content_fields'>
-  ): Promise<ContentField | null> {
+  ): Promise<ContentFieldRow | null> {
     const { data, error } = await this._supabase
       .from('content_fields')
       .insert(contentField)
@@ -44,7 +44,7 @@ class ContentFieldsService {
   async update(
     id: string,
     updates: TablesUpdate<'content_fields'>
-  ): Promise<ContentField | null> {
+  ): Promise<ContentFieldRow | null> {
     const { data, error } = await this._supabase
       .from('content_fields')
       .update(updates)
