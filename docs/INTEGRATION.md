@@ -14,7 +14,7 @@ npm install @broadmountain/supabase-cms-react @supabase/supabase-js react react-
 
 The library requires your Supabase project credentials. Create a `.env` file in the root of your project and add the following variables. You can find these in your Supabase project's "Project Settings" > "API" section.
 
-```
+```bash
 VITE_SUPABASE_URL="YOUR_SUPABASE_URL"
 VITE_SUPABASE_ANON_KEY="YOUR_SUPABASE_ANON_KEY"
 ```
