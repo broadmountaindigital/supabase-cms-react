@@ -33,3 +33,16 @@ export type {
 } from './DebouncedSaveTypes';
 export type { SkeletonLoaderProps } from './SkeletonLoaderTypes';
 export type { SaveState } from './MultilineEditorTypes';
+
+// Phase 3 types
+export type {
+  ValidationRule,
+  ValidationSchema,
+  ValidationResult,
+  ValidationError,
+  ConflictDetection,
+  OfflineConfig,
+  ValidationMode,
+  ConflictResolutionStrategy,
+  OfflineQueueStatus,
+} from './ValidationTypes';
