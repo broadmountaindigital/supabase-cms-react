@@ -65,7 +65,7 @@ import '@broadmountain/supabase-cms-react/dist/style.css';
 
 ### Custom Styling
 
-While the bundled stylesheet provides a great starting point, you can also apply your own custom styles. All components accept a `classNames` prop, which allows you to pass in your own CSS classes for nested elements. This gives you granular control over the look and feel, enabling you to integrate with any styling solution, such as Tailwind CSS, CSS Modules, or vanilla CSS.
+While the bundled stylesheet provides a minimal starting point, you can also apply your own custom styles. All components accept a `classNames` prop, which allows you to pass in your own CSS classes for nested elements. This gives you granular control over the look and feel, enabling you to integrate with any styling solution, such as Tailwind CSS, CSS Modules, or vanilla CSS.
 
 See the documentation for each component for a complete list of available `classNames`.
 
