@@ -4,5 +4,6 @@ globs:
 alwaysApply: true
 ---
 - when creating types, creeate a new file in ./src/types and export it from there, import it into the file(s) it needs to be used in
+- do not type any variable or function arguments as 'any' this is bad practice
 - always write CSS in src/index.css and never use <style> block in TSX components
 - all components that are created must provide a way for the consumer to inject CSS classNames to *every* element in the component. see props on src/components/Login.tsx for an example
