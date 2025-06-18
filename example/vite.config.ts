@@ -9,6 +9,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@broadmountain/supabase-cms-react': path.resolve(__dirname, '../src'),
+      '@': path.resolve(__dirname, '../src'),
     },
   },
 });
