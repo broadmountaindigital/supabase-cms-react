@@ -305,23 +305,44 @@ export default function MultilineEditor(props: MultilineEditorProps) {
             style={{ ...resetStyles, ...rest?.style }}
             {...rest}
           />
-          <button
-            type="button"
-            onClick={handleSave}
-            disabled={value === serverValue || saveState === 'saving'}
-            style={{
-              marginTop: '0.5rem',
-              padding: '0.5rem 1rem',
-              borderRadius: '0.25rem',
-              background: '#2563eb',
-              color: 'white',
-              border: 'none',
-              fontWeight: 500,
-            }}
-          >
-            {saveState === 'saving' ? 'Saving...' : 'Save'}
-          </button>
-          {showSavingIndicator && renderSaveIndicator(saveState)}
+          {showSavingIndicator && (
+            <div
+              style={{
+                position: 'absolute',
+                top: '-1.5rem',
+                right: 0,
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'flex-end',
+                flexWrap: 'nowrap',
+                width: '100%',
+                gap: '0.5rem',
+                zIndex: 10,
+              }}
+            >
+              {renderSaveIndicator(saveState)}
+              {value !== serverValue && saveState !== 'saving' && (
+                <button
+                  type="button"
+                  onClick={handleSave}
+                  disabled={saveState === 'saving'}
+                  style={{
+                    padding: '0.25rem 0.75rem',
+                    borderRadius: '9999px',
+                    background: '#2563eb',
+                    color: 'white',
+                    border: 'none',
+                    fontWeight: 500,
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                    cursor: 'pointer',
+                  }}
+                >
+                  Save
+                </button>
+              )}
+            </div>
+          )}
         </div>
       ) : (
         <span className={className} style={{ whiteSpace: 'pre-wrap' }}>
@@ -337,14 +358,10 @@ function renderSaveIndicator(saveState: SaveState) {
   if (saveState === 'idle') return null;
 
   const style: React.CSSProperties = {
-    position: 'absolute',
-    top: '-1.5rem',
-    right: '0',
     fontSize: '0.75rem',
     fontWeight: '500',
     padding: '0.25rem 0.5rem',
     borderRadius: '0.25rem',
-    zIndex: 10,
   };
 
   const stateConfig = {
@@ -361,7 +378,7 @@ function renderSaveIndicator(saveState: SaveState) {
     error: 'Error',
   };
 
-  return <div style={stateConfig[saveState]}>{stateText[saveState]}</div>;
+  return <span style={stateConfig[saveState]}>{stateText[saveState]}</span>;
 }
 
 function renderErrorMessage(error: string) {
