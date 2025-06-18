@@ -1,4 +1,5 @@
 import { useSupabaseCMS } from '../hooks/useSupabaseCMS';
+import { useUserSiteRole } from '../hooks/useUserSiteRole';
 
 /**
  * Props for the Settings component.
@@ -16,6 +17,11 @@ export interface SettingsProps {
  */
 export default function Settings({ classNames }: SettingsProps) {
   const { isInEditMode, toggleEditMode } = useSupabaseCMS();
+  const { role, loading } = useUserSiteRole();
+
+  if (loading || !role) return null;
+
+  console.log('user role', role);
 
   return (
     <div className={classNames?.containerClassName ?? ''}>
