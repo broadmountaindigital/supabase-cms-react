@@ -355,7 +355,7 @@ function renderSaveIndicator(saveState: SaveState) {
   };
 
   const stateText = {
-    pending: 'Saving...',
+    pending: 'Editing...',
     saving: 'Saving...',
     saved: 'Saved',
     error: 'Error',
