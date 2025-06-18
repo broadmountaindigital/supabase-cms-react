@@ -12,6 +12,8 @@ import { SignupPage } from './SignupPage';
 function HomePage() {
   const { user, loading, error, isInEditMode } = useSupabaseCMS();
 
+  console.log('user', user);
+
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error.message}</p>;
 
@@ -48,12 +50,12 @@ function HomePage() {
       <main>
         <section className="p-4 border rounded-lg">
           <h2 className="text-xl font-semibold mb-2">Editable Content</h2>
-          <p className="mb-4">
+          <div className="mb-4">
             <MultilineEditor
               fieldName="some_editable_content"
               rest={{ id: 'example-content' }}
             />
-          </p>
+          </div>
         </section>
       </main>
     </div>

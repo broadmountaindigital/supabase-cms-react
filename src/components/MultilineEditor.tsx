@@ -3,7 +3,6 @@ import type { TextInputProps } from '../types/TextInputProps';
 import type { SaveState } from '../types/MultilineEditorTypes';
 import type {
   ValidationSchema,
-  ValidationError,
   ConflictDetection,
   OfflineConfig,
   ConflictResolutionStrategy,
@@ -13,26 +12,8 @@ import {
   useAutosizeTextArea,
   useContentFieldsService,
   useSupabaseCMS,
-  useDebouncedSave,
-  useValidation,
-  useConflictDetection,
-  useOfflineSupport,
 } from '../hooks';
 import { SkeletonLoader } from './SkeletonLoader';
-
-// Helper interfaces for hook return types
-interface OfflineState {
-  isOnline: boolean;
-  hasUnsynced: boolean;
-}
-
-interface ValidationHook {
-  errors: ValidationError[];
-}
-
-interface ConflictState {
-  hasConflict: boolean;
-}
 
 /**
  * Props for the MultilineEditor component.
@@ -67,10 +48,7 @@ export interface MultilineEditorProps
 }
 
 /**
- * A multiline text editor component that can be used for inline editing.
- * It renders a textarea when in edit mode, and plain text otherwise.
- * Features debounced saving, optimistic updates, enhanced loading states,
- * validation, conflict detection, and offline support.
+ * A simplified multiline text editor component with debounced saving.
  */
 export default function MultilineEditor(props: MultilineEditorProps) {
   const { isInEditMode } = useSupabaseCMS();
@@ -87,266 +65,128 @@ export default function MultilineEditor(props: MultilineEditorProps) {
     debounceDelay = 1000,
     showSavingIndicator = true,
     loadingProps = {},
-    validation,
-    conflictDetection,
-    offlineConfig,
-    conflictResolutionStrategy = 'server',
-    // Revision props (to be implemented in Phase 2)
-    enableRevisions = false,
-    revisionConfig,
-    onRevisionCreated,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    onRevisionPublished,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    onRevisionConflict,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    showRevisionStatus = false,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    allowRollback = false,
   } = props;
 
   // State management
   const [fieldId, setFieldId] = useState<string | null>(null);
   const [value, setValue] = useState(defaultValue);
-  const [serverValue, setServerValue] = useState('');
-  const [serverTimestamp, setServerTimestamp] = useState<string | null>(null);
+  const [serverValue, setServerValue] = useState(defaultValue);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [saveState, setSaveState] = useState<SaveState>('idle');
+  const [error, setError] = useState<string | null>(null);
 
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
-  const prevIsInEditModeRef = useRef(isInEditMode);
-
-  // Phase 3 hooks
-  const validationHook = useValidation(validation, value);
-  const conflictHook = useConflictDetection(conflictDetection);
-  const offlineHook = useOfflineSupport(
-    offlineConfig || { enabled: false },
-    handleOfflineSync
-  );
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isMountedRef = useRef(true);
 
   useAutosizeTextArea(textAreaRef.current, value);
 
-  // Save function for debounced saving with Phase 3 features
-  const performSave = useCallback(async () => {
-    const hasValueChanged = value !== serverValue;
+  // Simple save function
+  const save = useCallback(async () => {
+    if (!isMountedRef.current) return;
 
-    if (!hasValueChanged) {
+    console.log('💾 Starting save...', { value, serverValue, fieldId });
+
+    if (value === serverValue) {
+      console.log('❌ No changes to save');
       return;
-    }
-
-    // Validate before saving if validation is enabled
-    if (validation) {
-      const validationResult = validationHook.validate(value, 'onSave');
-      if (validationResult.errors.length > 0) {
-        setError(`Validation failed: ${validationResult.errors[0].message}`);
-        setSaveState('error');
-        return;
-      }
     }
 
     setSaveState('saving');
     setError(null);
 
     try {
-      // Check for conflicts if enabled
-      if (conflictDetection?.enabled && serverTimestamp) {
-        const currentServerData = await fetchCurrentServerData();
-        if (
-          currentServerData &&
-          conflictHook.checkForConflict(
-            value,
-            currentServerData.value,
-            currentServerData.timestamp
-          )
-        ) {
-          // Handle conflict
-          const resolvedValue = await conflictHook.resolveConflict(
-            conflictResolutionStrategy
-          );
-          setValue(resolvedValue);
-          setServerValue(resolvedValue);
-          setSaveState('saved');
-          return;
-        }
-      }
-
       let savedField;
 
-      // Prepare revision config if revisions are enabled
-      const revisionEnabled = enableRevisions && revisionConfig;
-      const revisionOptions = revisionEnabled
-        ? {
-            enabled: true,
-            createdBy: revisionConfig.auto_create ? 'system' : undefined,
-            metadata: {
-              fieldName,
-              timestamp: new Date().toISOString(),
-            },
-          }
-        : undefined;
-
       if (fieldId) {
-        // Field exists, so update it (with optional revision tracking)
-        savedField = revisionOptions
-          ? await contentFieldsService.updateWithRevisions(
-              fieldId,
-              {
-                field_value: value,
-              },
-              revisionOptions
-            )
-          : await contentFieldsService.update(fieldId, {
-              field_value: value,
-            });
+        // Update existing field
+        console.log('📝 Updating field:', fieldId);
+        savedField = await contentFieldsService.update(fieldId, {
+          field_value: value,
+        });
       } else {
-        // Field does not exist, so create it (with optional revision tracking)
-        const fieldData = {
+        // Create new field
+        console.log('➕ Creating new field:', fieldName);
+        savedField = await contentFieldsService.create({
           field_name: fieldName,
           field_value: value,
-        };
-
-        savedField = revisionOptions
-          ? await contentFieldsService.createWithRevisions(
-              fieldData,
-              revisionOptions
-            )
-          : await contentFieldsService.create(fieldData);
+        });
 
         if (savedField) {
           setFieldId(savedField.id);
         }
       }
 
-      // Update server value and timestamp to reflect successful save
-      setServerValue(value);
-      if (savedField?.updated_at) {
-        setServerTimestamp(savedField.updated_at);
-        conflictHook.updateServerTimestamp(savedField.updated_at);
-      }
+      if (savedField) {
+        setServerValue(value);
+        setSaveState('saved');
+        console.log('✅ Save successful');
 
-      setSaveState('saved');
-
-      // Call revision callback if provided
-      if (enableRevisions && onRevisionCreated && savedField) {
-        try {
-          const currentRevision = await contentFieldsService.getCurrentRevision(
-            savedField.id
-          );
-          if (currentRevision) {
-            onRevisionCreated(currentRevision);
+        // Auto-hide saved indicator
+        setTimeout(() => {
+          if (isMountedRef.current) {
+            setSaveState('idle');
           }
-        } catch (error) {
-          console.error('Error fetching current revision:', error);
-        }
-      }
-
-      // Auto-hide saved indicator after 2 seconds
-      setTimeout(() => {
-        setSaveState((current) => (current === 'saved' ? 'idle' : current));
-      }, 2000);
-    } catch (e) {
-      const errorMessage =
-        e instanceof Error ? e.message : 'An unknown error occurred.';
-      console.error('Failed to save content:', errorMessage);
-
-      // Queue for offline if configured
-      if (offlineConfig?.enabled && !navigator.onLine) {
-        offlineHook.queueChange(fieldName, value);
-        setSaveState('saved'); // Show as saved since it's queued
+        }, 2000);
       } else {
-        setError(`Failed to save: ${errorMessage}`);
-        setSaveState('error');
+        throw new Error('Save returned null');
       }
+    } catch (e) {
+      const errorMessage = e instanceof Error ? e.message : 'Save failed';
+      console.error('❌ Save failed:', errorMessage);
+      setError(errorMessage);
+      setSaveState('error');
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    value,
-    serverValue,
-    fieldId,
-    fieldName,
-    contentFieldsService,
-    validation,
-    validationHook,
-    conflictDetection,
-    conflictHook,
-    serverTimestamp,
-    conflictResolutionStrategy,
-    offlineConfig,
-    offlineHook,
-    enableRevisions,
-    revisionConfig,
-    onRevisionCreated,
-  ]);
+  }, [value, serverValue, fieldId, fieldName, contentFieldsService]);
 
-  // Determine when auto-save should trigger
-  const shouldAutoSave =
-    isInEditMode && value !== serverValue && validationHook.isValid;
-  const forceImmediate = prevIsInEditModeRef.current && !isInEditMode;
-
-  // Debounced saving
-  const { isPending, isSaving } = useDebouncedSave({
-    delay: debounceDelay,
-    onSave: performSave,
-    shouldSave: shouldAutoSave,
-    forceImmediate,
-  });
-
-  // Update save state based on debounced save status
+  // Debounced save effect
   useEffect(() => {
-    const newSaveState = determineCurrentSaveState(isPending, isSaving, error);
-    setSaveState(newSaveState);
-  }, [isPending, isSaving, error]);
+    if (!isInEditMode || value === serverValue) {
+      return;
+    }
 
-  // Fetch initial value with offline fallback
+    // Clear existing timeout
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+
+    // Set pending state
+    setSaveState('pending');
+
+    // Set new timeout
+    saveTimeoutRef.current = setTimeout(() => {
+      save();
+    }, debounceDelay);
+
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, [value, serverValue, isInEditMode, debounceDelay, save]);
+
+  // Load initial content
   useEffect(() => {
     let isMounted = true;
 
-    async function fetchContent() {
+    async function loadContent() {
       setIsLoading(true);
 
       try {
-        // Check offline storage first
-        const offlineValue = offlineHook.getStoredValue(fieldName);
-
-        if (offlineValue && !navigator.onLine) {
-          setValue(offlineValue);
-          setServerValue(defaultValue); // Server value unknown when offline
-          setIsLoading(false);
-          return;
-        }
-
         const allFields = await contentFieldsService.getAll();
-        const contentField = allFields.find(
-          (field) => field.field_name === fieldName
-        );
+        const field = allFields.find((f) => f.field_name === fieldName);
 
         if (isMounted) {
-          const fieldValue = contentField?.field_value ?? defaultValue;
-          const timestamp = contentField?.updated_at ?? null;
-
+          const fieldValue = field?.field_value ?? defaultValue;
           setValue(fieldValue);
           setServerValue(fieldValue);
-          setFieldId(contentField?.id ?? null);
-          setServerTimestamp(timestamp);
-
-          if (timestamp) {
-            conflictHook.updateServerTimestamp(timestamp);
-          }
+          setFieldId(field?.id ?? null);
         }
       } catch (e) {
         if (isMounted) {
           const errorMessage =
-            e instanceof Error ? e.message : 'Failed to load content';
-
-          // Try offline fallback on error
-          const offlineValue = offlineHook.getStoredValue(fieldName);
-          if (offlineValue) {
-            setValue(offlineValue);
-            setServerValue(defaultValue);
-          } else {
-            setError(errorMessage);
-          }
+            e instanceof Error ? e.message : 'Failed to load';
+          setError(errorMessage);
         }
       } finally {
         if (isMounted) {
@@ -355,25 +195,24 @@ export default function MultilineEditor(props: MultilineEditorProps) {
       }
     }
 
-    fetchContent();
+    loadContent();
 
     return () => {
       isMounted = false;
     };
-  }, [
-    fieldName,
-    contentFieldsService,
-    defaultValue,
-    offlineHook,
-    conflictHook,
-  ]);
+  }, [fieldName, contentFieldsService, defaultValue]);
 
-  // Track edit mode changes
+  // Cleanup on unmount
   useEffect(() => {
-    prevIsInEditModeRef.current = isInEditMode;
-  }, [isInEditMode]);
+    return () => {
+      isMountedRef.current = false;
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, []);
 
-  function onFieldInput(event: React.ChangeEvent<HTMLTextAreaElement>) {
+  function handleInput(event: React.ChangeEvent<HTMLTextAreaElement>) {
     const newValue = event.target.value;
     const lineCount = newValue.split('\n').length;
     const charCount = newValue.length;
@@ -383,68 +222,49 @@ export default function MultilineEditor(props: MultilineEditorProps) {
     const exceedsMaxChars =
       typeof maxCharacterCount === 'number' && charCount > maxCharacterCount;
 
-    if (exceedsMaxLines) {
-      console.log(`Input exceeds the maximum allowed lines (${maxLines}).`);
+    if (exceedsMaxLines || exceedsMaxChars) {
       return;
     }
 
-    if (exceedsMaxChars) {
-      console.log(
-        `Input exceeds the maximum allowed characters (${maxCharacterCount}).`
-      );
-      return;
-    }
-
-    // Optimistic update
     setValue(newValue);
-
-    // Validate on change if configured
-    if (validation?.validateOnChange) {
-      validationHook.validate(newValue, 'onChange');
-    }
 
     if (onChange) {
       onChange(newValue);
     }
   }
 
-  function onFieldBlur() {
-    // Validate on blur if configured
-    if (validation?.validateOnBlur) {
-      validationHook.validate(value, 'onBlur');
-    }
-  }
-
-  // Helper function to fetch current server data for conflict detection
-  async function fetchCurrentServerData(): Promise<{
-    value: string;
-    timestamp: string;
-  } | null> {
+  async function handleSave() {
+    setSaveState('saving');
+    setError(null);
     try {
-      if (!fieldId) return null;
-
-      const field = await contentFieldsService.getById(fieldId);
-      if (field) {
-        return {
-          value: field.field_value || '',
-          timestamp: field.updated_at,
-        };
+      let savedField;
+      if (fieldId) {
+        savedField = await contentFieldsService.update(fieldId, {
+          field_value: value,
+        });
+      } else {
+        savedField = await contentFieldsService.create({
+          field_name: fieldName,
+          field_value: value,
+        });
+        if (savedField) {
+          setFieldId(savedField.id);
+        }
       }
-    } catch (error) {
-      console.error('Failed to fetch current server data:', error);
+      if (savedField) {
+        setServerValue(value);
+        setSaveState('saved');
+        setTimeout(() => {
+          if (isMountedRef.current) setSaveState('idle');
+        }, 2000);
+      } else {
+        throw new Error('Save returned null');
+      }
+    } catch (e) {
+      const errorMessage = e instanceof Error ? e.message : 'Save failed';
+      setError(errorMessage);
+      setSaveState('error');
     }
-    return null;
-  }
-
-  // Handle offline sync
-  async function handleOfflineSync(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    _fieldName: string,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    _value: string
-  ): Promise<void> {
-    // This will be called by the offline hook to sync changes
-    await performSave();
   }
 
   const resetStyles: React.CSSProperties = {
@@ -462,7 +282,6 @@ export default function MultilineEditor(props: MultilineEditorProps) {
     display: 'block',
   };
 
-  // Enhanced loading state
   if (isLoading) {
     return (
       <SkeletonLoader
@@ -481,16 +300,28 @@ export default function MultilineEditor(props: MultilineEditorProps) {
           <textarea
             ref={textAreaRef}
             value={value}
-            onChange={onFieldInput}
-            onBlur={onFieldBlur}
+            onChange={handleInput}
             className={className}
             style={{ ...resetStyles, ...rest?.style }}
             {...rest}
           />
-          {showSavingIndicator &&
-            renderSaveIndicator(saveState, offlineHook.offlineState)}
-          {renderValidationErrors(validationHook)}
-          {renderConflictNotification(conflictHook.conflictState)}
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={value === serverValue || saveState === 'saving'}
+            style={{
+              marginTop: '0.5rem',
+              padding: '0.5rem 1rem',
+              borderRadius: '0.25rem',
+              background: '#2563eb',
+              color: 'white',
+              border: 'none',
+              fontWeight: 500,
+            }}
+          >
+            {saveState === 'saving' ? 'Saving...' : 'Save'}
+          </button>
+          {showSavingIndicator && renderSaveIndicator(saveState)}
         </div>
       ) : (
         <span className={className} style={{ whiteSpace: 'pre-wrap' }}>
@@ -502,20 +333,10 @@ export default function MultilineEditor(props: MultilineEditorProps) {
   );
 }
 
-// Helper functions following declarative approach
-function determineCurrentSaveState(
-  isPending: boolean,
-  isSaving: boolean,
-  error: string | null
-): SaveState {
-  if (error) return 'error';
-  if (isSaving) return 'saving';
-  if (isPending) return 'pending';
-  return 'idle';
-}
+function renderSaveIndicator(saveState: SaveState) {
+  if (saveState === 'idle') return null;
 
-function renderSaveIndicator(saveState: SaveState, offlineState: OfflineState) {
-  const indicatorStyle: React.CSSProperties = {
+  const style: React.CSSProperties = {
     position: 'absolute',
     top: '-1.5rem',
     right: '0',
@@ -523,109 +344,24 @@ function renderSaveIndicator(saveState: SaveState, offlineState: OfflineState) {
     fontWeight: '500',
     padding: '0.25rem 0.5rem',
     borderRadius: '0.25rem',
-    transition: 'all 0.2s ease-in-out',
-    pointerEvents: 'none',
     zIndex: 10,
   };
 
-  // Determine state and color based on online/offline status
-  const isOffline = !offlineState.isOnline;
-  const hasQueuedChanges = offlineState.hasUnsynced;
-
   const stateConfig = {
-    idle: { display: 'none' },
-    pending: {
-      ...indicatorStyle,
-      backgroundColor: isOffline ? '#f59e0b' : '#fef3c7',
-      color: isOffline ? '#ffffff' : '#92400e',
-      display: 'block',
-    },
-    saving: {
-      ...indicatorStyle,
-      backgroundColor: isOffline ? '#f59e0b' : '#dbeafe',
-      color: isOffline ? '#ffffff' : '#1e40af',
-      display: 'block',
-    },
-    saved: {
-      ...indicatorStyle,
-      backgroundColor: '#d1fae5',
-      color: '#059669',
-      display: 'block',
-    },
-    error: {
-      ...indicatorStyle,
-      backgroundColor: '#fee2e2',
-      color: '#dc2626',
-      display: 'block',
-    },
+    pending: { ...style, backgroundColor: '#fef3c7', color: '#92400e' },
+    saving: { ...style, backgroundColor: '#dbeafe', color: '#1e40af' },
+    saved: { ...style, backgroundColor: '#d1fae5', color: '#059669' },
+    error: { ...style, backgroundColor: '#fee2e2', color: '#dc2626' },
   };
 
   const stateText = {
-    idle: '',
-    pending: isOffline ? 'Queued' : 'Saving...',
-    saving: isOffline ? 'Queued' : 'Saving...',
-    saved: hasQueuedChanges ? 'Queued' : 'Saved',
+    pending: 'Saving...',
+    saving: 'Saving...',
+    saved: 'Saved',
     error: 'Error',
   };
 
-  return (
-    <div style={stateConfig[saveState]}>
-      {stateText[saveState]}
-      {isOffline && <span style={{ marginLeft: '0.25rem' }}>📱</span>}
-    </div>
-  );
-}
-
-function renderValidationErrors(validationHook: ValidationHook) {
-  if (!validationHook.errors.length) return null;
-
-  const errorStyle: React.CSSProperties = {
-    position: 'absolute',
-    top: '100%',
-    left: '0',
-    right: '0',
-    backgroundColor: '#fee2e2',
-    border: '1px solid #fecaca',
-    borderRadius: '0.25rem',
-    padding: '0.5rem',
-    fontSize: '0.75rem',
-    color: '#dc2626',
-    zIndex: 10,
-    marginTop: '0.25rem',
-  };
-
-  return (
-    <div style={errorStyle}>
-      {validationHook.errors.map((error: ValidationError, index: number) => (
-        <div key={index}>{error.message}</div>
-      ))}
-    </div>
-  );
-}
-
-function renderConflictNotification(conflictState: ConflictState) {
-  if (!conflictState.hasConflict) return null;
-
-  const conflictStyle: React.CSSProperties = {
-    position: 'absolute',
-    top: '100%',
-    left: '0',
-    right: '0',
-    backgroundColor: '#fef3c7',
-    border: '1px solid #fed7aa',
-    borderRadius: '0.25rem',
-    padding: '0.5rem',
-    fontSize: '0.75rem',
-    color: '#92400e',
-    zIndex: 10,
-    marginTop: '0.25rem',
-  };
-
-  return (
-    <div style={conflictStyle}>
-      ⚠️ Content was modified by another user. Changes have been merged.
-    </div>
-  );
+  return <div style={stateConfig[saveState]}>{stateText[saveState]}</div>;
 }
 
 function renderErrorMessage(error: string) {
