@@ -54,7 +54,6 @@
   },
   "scripts": {
     "dev": "npm-run-all2 -p dev:*",
-    "dev:vite": "vite",
     "dev:example": "npm run dev --prefix example",
     "build": "tsc -b && vite build",
     "build:lib": "npm run clean && npm run build:types && vite build --config vite.lib.config.ts",
