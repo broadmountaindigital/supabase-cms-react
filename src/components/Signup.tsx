@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, type FC } from 'react';
 import { useSupabaseCMS } from '../hooks/useSupabaseCMS';
 import type { AuthError, User } from '@supabase/supabase-js';
 
@@ -26,7 +26,7 @@ export interface SignupProps {
  * A component that renders a signup form.
  * Handles new user registration via email and password.
  */
-const Signup: React.FC<SignupProps> = ({
+const Signup: FC<SignupProps> = ({
   onSignupSuccess,
   onSignupError,
   classNames,

@@ -1,4 +1,4 @@
-import React from 'react';
+import { type CSSProperties } from 'react';
 import type { SkeletonLoaderProps } from '../types/SkeletonLoaderTypes';
 
 /**
@@ -19,7 +19,7 @@ export function SkeletonLoader({
     return width;
   };
 
-  const skeletonStyles: React.CSSProperties = {
+  const skeletonStyles: CSSProperties = {
     display: 'block',
     backgroundColor: '#e2e8f0',
     borderRadius: '4px',
@@ -27,7 +27,7 @@ export function SkeletonLoader({
     ...style,
   };
 
-  const containerStyles: React.CSSProperties = {
+  const containerStyles: CSSProperties = {
     display: 'flex',
     flexDirection: 'column',
     gap: '0.5rem',

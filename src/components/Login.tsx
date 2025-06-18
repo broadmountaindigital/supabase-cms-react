@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, type FC, type FormEvent } from 'react';
 import { useSupabaseCMS } from '../hooks/useSupabaseCMS';
 import type { AuthError, User } from '@supabase/supabase-js';
 
@@ -24,7 +24,7 @@ export interface LoginProps {
  * A component that renders a login form.
  * Handles user authentication via email and password.
  */
-const Login: React.FC<LoginProps> = ({
+const Login: FC<LoginProps> = ({
   onLoginSuccess,
   onLoginError,
   classNames,
@@ -39,7 +39,7 @@ const Login: React.FC<LoginProps> = ({
     }
   }, [user, onLoginSuccess]);
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     const { error: signInError } = await signIn({ email, password });
     if (signInError && onLoginError) {

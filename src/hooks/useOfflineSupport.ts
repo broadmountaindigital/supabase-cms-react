@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import type {
   OfflineConfig,
   OfflineQueueStatus,
@@ -286,12 +286,22 @@ export function useOfflineSupport(
     };
   }, []);
 
-  return {
-    offlineState,
-    queueChange,
-    syncQueuedChanges,
-    getStoredValue,
-    clearStoredValue,
-    clearOfflineData,
-  };
+  return useMemo(
+    () => ({
+      offlineState,
+      queueChange,
+      syncQueuedChanges,
+      getStoredValue,
+      clearStoredValue,
+      clearOfflineData,
+    }),
+    [
+      offlineState,
+      queueChange,
+      syncQueuedChanges,
+      getStoredValue,
+      clearStoredValue,
+      clearOfflineData,
+    ]
+  );
 }

@@ -8,6 +8,7 @@ import type {
   OfflineConfig,
   ConflictResolutionStrategy,
 } from '../types/ValidationTypes';
+import type { RevisionEnabledProps } from '../types/RevisionTypes';
 import {
   useAutosizeTextArea,
   useContentFieldsService,
@@ -37,7 +38,8 @@ interface ConflictState {
  * Props for the MultilineEditor component.
  */
 export interface MultilineEditorProps
-  extends Omit<TextInputProps, 'defaultValue'> {
+  extends Omit<TextInputProps, 'defaultValue'>,
+    RevisionEnabledProps {
   /** The unique name of the content field to be fetched and updated. */
   fieldName: string;
   /** An optional default value to display and use when creating a new field. */
@@ -89,6 +91,18 @@ export default function MultilineEditor(props: MultilineEditorProps) {
     conflictDetection,
     offlineConfig,
     conflictResolutionStrategy = 'server',
+    // Revision props (to be implemented in Phase 2)
+    enableRevisions = false,
+    revisionConfig,
+    onRevisionCreated,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    onRevisionPublished,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    onRevisionConflict,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    showRevisionStatus = false,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    allowRollback = false,
   } = props;
 
   // State management
@@ -159,17 +173,45 @@ export default function MultilineEditor(props: MultilineEditorProps) {
 
       let savedField;
 
+      // Prepare revision config if revisions are enabled
+      const revisionEnabled = enableRevisions && revisionConfig;
+      const revisionOptions = revisionEnabled
+        ? {
+            enabled: true,
+            createdBy: revisionConfig.auto_create ? 'system' : undefined,
+            metadata: {
+              fieldName,
+              timestamp: new Date().toISOString(),
+            },
+          }
+        : undefined;
+
       if (fieldId) {
-        // Field exists, so update it
-        savedField = await contentFieldsService.update(fieldId, {
-          field_value: value,
-        });
+        // Field exists, so update it (with optional revision tracking)
+        savedField = revisionOptions
+          ? await contentFieldsService.updateWithRevisions(
+              fieldId,
+              {
+                field_value: value,
+              },
+              revisionOptions
+            )
+          : await contentFieldsService.update(fieldId, {
+              field_value: value,
+            });
       } else {
-        // Field does not exist, so create it
-        savedField = await contentFieldsService.create({
+        // Field does not exist, so create it (with optional revision tracking)
+        const fieldData = {
           field_name: fieldName,
           field_value: value,
-        });
+        };
+
+        savedField = revisionOptions
+          ? await contentFieldsService.createWithRevisions(
+              fieldData,
+              revisionOptions
+            )
+          : await contentFieldsService.create(fieldData);
 
         if (savedField) {
           setFieldId(savedField.id);
@@ -184,6 +226,20 @@ export default function MultilineEditor(props: MultilineEditorProps) {
       }
 
       setSaveState('saved');
+
+      // Call revision callback if provided
+      if (enableRevisions && onRevisionCreated && savedField) {
+        try {
+          const currentRevision = await contentFieldsService.getCurrentRevision(
+            savedField.id
+          );
+          if (currentRevision) {
+            onRevisionCreated(currentRevision);
+          }
+        } catch (error) {
+          console.error('Error fetching current revision:', error);
+        }
+      }
 
       // Auto-hide saved indicator after 2 seconds
       setTimeout(() => {
@@ -218,6 +274,9 @@ export default function MultilineEditor(props: MultilineEditorProps) {
     conflictResolutionStrategy,
     offlineConfig,
     offlineHook,
+    enableRevisions,
+    revisionConfig,
+    onRevisionCreated,
   ]);
 
   // Determine when auto-save should trigger

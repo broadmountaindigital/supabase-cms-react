@@ -46,3 +46,27 @@ export type {
   ConflictResolutionStrategy,
   OfflineQueueStatus,
 } from './ValidationTypes';
+
+// Revision tracking types (Phase 1)
+export type {
+  ContentFieldRevision,
+  ContentFieldWithRevisions,
+  CreateRevisionParams,
+  PublishRevisionParams,
+  RollbackRevisionParams,
+  RevisionComparison,
+  RevisionChange,
+  RevisionHistoryParams,
+  RevisionHistoryResponse,
+  RevisionStatus,
+  RevisionConflict,
+  RevisionConfig,
+  RevisionServiceResponse,
+  BatchRevisionOperation,
+  BatchRevisionResult,
+  RevisionMetadata,
+  ContentFieldRevisionFull,
+  RevisionAnalytics,
+  RevisionEnabledProps,
+  UseRevisionReturn,
+} from './RevisionTypes';

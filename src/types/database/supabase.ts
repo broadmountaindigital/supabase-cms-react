@@ -76,35 +76,141 @@ export type Database = {
           },
         ];
       };
+      content_field_revisions: {
+        Row: {
+          content_field_id: string;
+          created_at: string | null;
+          created_by: string | null;
+          field_value: string | null;
+          field_value_hash: string | null;
+          id: string;
+          is_current: boolean | null;
+          is_published: boolean | null;
+          metadata: Json | null;
+          parent_revision_id: string | null;
+          published_at: string | null;
+          published_by: string | null;
+          revision_number: number;
+          updated_at: string | null;
+        };
+        Insert: {
+          content_field_id: string;
+          created_at?: string | null;
+          created_by?: string | null;
+          field_value?: string | null;
+          field_value_hash?: string | null;
+          id?: string;
+          is_current?: boolean | null;
+          is_published?: boolean | null;
+          metadata?: Json | null;
+          parent_revision_id?: string | null;
+          published_at?: string | null;
+          published_by?: string | null;
+          revision_number: number;
+          updated_at?: string | null;
+        };
+        Update: {
+          content_field_id?: string;
+          created_at?: string | null;
+          created_by?: string | null;
+          field_value?: string | null;
+          field_value_hash?: string | null;
+          id?: string;
+          is_current?: boolean | null;
+          is_published?: boolean | null;
+          metadata?: Json | null;
+          parent_revision_id?: string | null;
+          published_at?: string | null;
+          published_by?: string | null;
+          revision_number?: number;
+          updated_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'content_field_revisions_content_field_id_fkey';
+            columns: ['content_field_id'];
+            isOneToOne: false;
+            referencedRelation: 'content_fields';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'content_field_revisions_created_by_fkey';
+            columns: ['created_by'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'content_field_revisions_parent_revision_id_fkey';
+            columns: ['parent_revision_id'];
+            isOneToOne: false;
+            referencedRelation: 'content_field_revisions';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'content_field_revisions_published_by_fkey';
+            columns: ['published_by'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       content_fields: {
         Row: {
           created_at: string;
+          current_revision_id: string | null;
           field_name: string;
           field_namespace: string | null;
           field_value: string | null;
           id: string;
+          last_published_at: string | null;
+          last_published_by: string | null;
           site_id: string | null;
+          total_revisions: number | null;
           updated_at: string;
         };
         Insert: {
           created_at?: string;
+          current_revision_id?: string | null;
           field_name: string;
           field_namespace?: string | null;
           field_value?: string | null;
           id?: string;
+          last_published_at?: string | null;
+          last_published_by?: string | null;
           site_id?: string | null;
+          total_revisions?: number | null;
           updated_at?: string;
         };
         Update: {
           created_at?: string;
+          current_revision_id?: string | null;
           field_name?: string;
           field_namespace?: string | null;
           field_value?: string | null;
           id?: string;
+          last_published_at?: string | null;
+          last_published_by?: string | null;
           site_id?: string | null;
+          total_revisions?: number | null;
           updated_at?: string;
         };
         Relationships: [
+          {
+            foreignKeyName: 'content_fields_current_revision_id_fkey';
+            columns: ['current_revision_id'];
+            isOneToOne: false;
+            referencedRelation: 'content_field_revisions';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'content_fields_last_published_by_fkey';
+            columns: ['last_published_by'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
           {
             foreignKeyName: 'content_fields_site_id_fkey';
             columns: ['site_id'];
@@ -234,17 +340,37 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      create_content_field_revision: {
+        Args: {
+          p_content_field_id: string;
+          p_field_value: string;
+          p_created_by?: string;
+        };
+        Returns: string;
+      };
       get_content_fields_for_page: {
         Args: { page_id: string };
         Returns: {
           created_at: string;
+          current_revision_id: string | null;
           field_name: string;
           field_namespace: string | null;
           field_value: string | null;
           id: string;
+          last_published_at: string | null;
+          last_published_by: string | null;
           site_id: string | null;
+          total_revisions: number | null;
           updated_at: string;
         }[];
+      };
+      publish_content_field_revision: {
+        Args: { p_revision_id: string; p_published_by?: string };
+        Returns: boolean;
+      };
+      rollback_to_revision: {
+        Args: { p_revision_id: string; p_created_by?: string };
+        Returns: string;
       };
     };
     Enums: {

@@ -9,6 +9,8 @@ import type {
   ProfileUpdate,
 } from '@/types/database';
 import type { Database } from '@/types/database/supabase';
+import { contentFieldRevisionsService } from './ContentFieldRevisions.service';
+import type { ContentFieldRevision } from '@/types/RevisionTypes';
 
 // Base service class with site awareness
 export abstract class SiteAwareService {
@@ -128,6 +130,111 @@ export class SiteAwareContentFieldsService extends SiteAwareService {
     }
 
     return !error;
+  }
+
+  /**
+   * Create a content field with optional revision tracking
+   */
+  async createWithRevisions(
+    contentField: Omit<ContentFieldInsert, 'site_id'>,
+    revisionConfig?: {
+      enabled: boolean;
+      createdBy?: string;
+      metadata?: Record<string, unknown>;
+    }
+  ) {
+    // Create the content field first
+    const createdField = await this.create(contentField);
+
+    if (!createdField || !revisionConfig?.enabled) {
+      return createdField;
+    }
+
+    // Create initial revision if revision tracking is enabled
+    if (createdField.field_value) {
+      try {
+        await contentFieldRevisionsService.createRevision({
+          content_field_id: createdField.id,
+          field_value: createdField.field_value,
+          created_by: revisionConfig.createdBy,
+          metadata: revisionConfig.metadata,
+        });
+      } catch (error) {
+        console.error('Error creating initial revision:', error);
+        // Don't fail the content field creation if revision creation fails
+      }
+    }
+
+    return createdField;
+  }
+
+  /**
+   * Update a content field with optional revision tracking
+   */
+  async updateWithRevisions(
+    id: string,
+    updates: ContentFieldUpdate,
+    revisionConfig?: {
+      enabled: boolean;
+      createdBy?: string;
+      metadata?: Record<string, unknown>;
+    }
+  ) {
+    // Check if we need to create a revision before updating
+    let shouldCreateRevision = false;
+    let oldField = null;
+
+    if (revisionConfig?.enabled && updates.field_value !== undefined) {
+      oldField = await this.getById(id);
+      shouldCreateRevision =
+        !!oldField && oldField.field_value !== updates.field_value;
+    }
+
+    // Update the content field
+    const updatedField = await this.update(id, updates);
+
+    if (!updatedField || !shouldCreateRevision || !oldField) {
+      return updatedField;
+    }
+
+    // Create revision after successful update
+    try {
+      await contentFieldRevisionsService.createRevision({
+        content_field_id: updatedField.id,
+        field_value: updatedField.field_value || '',
+        created_by: revisionConfig?.createdBy,
+        metadata: revisionConfig?.metadata,
+      });
+    } catch (error) {
+      console.error('Error creating revision:', error);
+      // Don't fail the update if revision creation fails
+    }
+
+    return updatedField;
+  }
+
+  /**
+   * Get revision history for a content field
+   */
+  async getRevisionHistory(
+    contentFieldId: string
+  ): Promise<ContentFieldRevision[]> {
+    const historyResponse =
+      await contentFieldRevisionsService.getRevisionHistory({
+        content_field_id: contentFieldId,
+      });
+    return historyResponse.revisions;
+  }
+
+  /**
+   * Get current revision for a content field
+   */
+  async getCurrentRevision(
+    contentFieldId: string
+  ): Promise<ContentFieldRevision | null> {
+    return await contentFieldRevisionsService.getCurrentRevision(
+      contentFieldId
+    );
   }
 }
 

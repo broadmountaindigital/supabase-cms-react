@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import type { User, AuthError } from '@supabase/supabase-js';
 import type { Database } from '../types/database/supabase';

@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useRef, useState, useMemo } from 'react';
 import type {
   ConflictDetection,
   ConflictResolutionStrategy,
@@ -124,13 +124,22 @@ export function useConflictDetection(
     lastKnownTimestampRef.current = timestamp;
   }, []);
 
-  return {
-    conflictState,
-    checkForConflict,
-    resolveConflict,
-    clearConflict,
-    updateServerTimestamp,
-  };
+  return useMemo(
+    () => ({
+      conflictState,
+      checkForConflict,
+      resolveConflict,
+      clearConflict,
+      updateServerTimestamp,
+    }),
+    [
+      conflictState,
+      checkForConflict,
+      resolveConflict,
+      clearConflict,
+      updateServerTimestamp,
+    ]
+  );
 }
 
 // Helper function to execute conflict resolution based on strategy

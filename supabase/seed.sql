@@ -13,7 +13,7 @@ BEGIN
   -- IMPORTANT: This requires elevated privileges and the password must already be hashed.
   INSERT INTO auth.users (id, aud, role, email, encrypted_password)
   VALUES
-    (user_uid, 'authenticated', 'authenticated', 'user@usersite.com', '$2a$10$dxg.PQE0nfn9kad0enw.e.f.m.Z.Y.Z.Y.Z.Y.Z.Y.Z.Y.Z.Y.Z.Y');
+    (user_uid, 'authenticated', 'authenticated', 'user@usersite.com', '$2b$10$08tarwp9WW5SelbInYmg/.IvoXNi.m4J31JksAmVWoQrnJJ.XF7kW');
 
   -- 2. Create a new site, associating it with the new user
   INSERT INTO public.sites (id, user_id, site_name, site_url)
