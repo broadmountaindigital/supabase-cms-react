@@ -30,8 +30,6 @@ export interface MultilineEditorProps
   rest?: React.TextareaHTMLAttributes<HTMLTextAreaElement>;
   /** Debounce delay in milliseconds for auto-saving (default: 1000ms) */
   debounceDelay?: number;
-  /** Whether to show saving indicators */
-  showSavingIndicator?: boolean;
   /** Custom loading component props */
   loadingProps?: {
     lines?: number;
@@ -64,7 +62,6 @@ export default function MultilineEditor(props: MultilineEditorProps) {
     maxLines,
     maxCharacterCount,
     debounceDelay = 1000,
-    showSavingIndicator = true,
     loadingProps = {},
   } = props;
 
@@ -294,14 +291,13 @@ export default function MultilineEditor(props: MultilineEditorProps) {
   return (
     <>
       {isInEditMode ? (
-        <div className="bmscms:relative">
+        <div className={className ?? 'bmscms:relative'}>
           <textarea
             ref={textAreaRef}
             value={value}
             onChange={handleInput}
             rows={1}
             className={[
-              className,
               'bmscms:border-none bmscms:outline-none bmscms:bg-transparent bmscms:p-0 bmscms:m-0 bmscms:resize-none bmscms:w-full bmscms:overflow-hidden bmscms:box-border bmscms:block bmscms:text-inherit bmscms:font-inherit bmscms:field-sizing-content',
             ]
               .filter(Boolean)
@@ -309,26 +305,23 @@ export default function MultilineEditor(props: MultilineEditorProps) {
             style={rest?.style}
             {...rest}
           />
-          {showSavingIndicator && (
-            <div className="bmscms:absolute bmscms:top-[-1.5rem] bmscms:right-0 bmscms:flex bmscms:flex-row bmscms:items-center bmscms:justify-end bmscms:flex-nowrap bmscms:w-full bmscms:gap-2 bmscms:z-10">
-              {renderSaveIndicator(saveState)}
-              {(() => {
-                const showSaveButton =
-                  value !== serverValue && saveState !== SaveState.Saving;
-                const saveButtonDisabled =
-                  saveState === SaveState.Saving ||
-                  saveState === SaveState.Saved;
-                return showSaveButton ? (
-                  <EditorButton
-                    onClick={handleSave}
-                    disabled={saveButtonDisabled}
-                  >
-                    Save
-                  </EditorButton>
-                ) : null;
-              })()}
-            </div>
-          )}
+          <div className="bmscms:absolute bmscms:top-[-1.5rem] bmscms:right-0 bmscms:flex bmscms:flex-row bmscms:items-center bmscms:justify-end bmscms:flex-nowrap bmscms:w-full bmscms:gap-2 bmscms:z-10">
+            {renderSaveIndicator(saveState)}
+            {(() => {
+              const showSaveButton =
+                value !== serverValue && saveState !== SaveState.Saving;
+              const saveButtonDisabled =
+                saveState === SaveState.Saving || saveState === SaveState.Saved;
+              return showSaveButton ? (
+                <EditorButton
+                  onClick={handleSave}
+                  disabled={saveButtonDisabled}
+                >
+                  Save
+                </EditorButton>
+              ) : null;
+            })()}
+          </div>
         </div>
       ) : (
         <span
