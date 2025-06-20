@@ -68,6 +68,14 @@ function HomePage() {
           <Collection
             collectionId="e3a5d0a4-bc29-4a65-919b-f678132202c9"
             emptyStateMessage="No items in this demo collection. Add some items in edit mode!"
+            ListWrapperComponent={({ children }) => (
+              <div className="flex flex-col py-4">{children}</div>
+            )}
+            ListItemWrapperComponent={({ children }) => (
+              <div className="flex flex-row items-center py-2 hover:bg-black/20">
+                {children}
+              </div>
+            )}
           />
         </section>
       </main>
