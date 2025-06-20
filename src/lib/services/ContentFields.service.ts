@@ -2,13 +2,14 @@ import { supabase } from '@/lib/utils/supabase';
 import type { ContentFieldRow } from '@/types/database';
 import type { TablesInsert, TablesUpdate } from '@/types/database/supabase';
 import { contentFieldRevisionsService } from './ContentFieldRevisions.service';
+import { fieldCollectionsService } from './FieldCollections.service';
 import type { ContentFieldRevision } from '@/types/RevisionTypes';
 
 class ContentFieldsService {
   constructor(private readonly _supabase = supabase) {}
 
   /**
-   * Create a content field with optional revision tracking
+   * Create a content field with optional revision tracking and collection association
    */
   async createWithRevisions(
     contentField: TablesInsert<'content_fields'>,
@@ -16,10 +17,35 @@ class ContentFieldsService {
       enabled: boolean;
       createdBy?: string;
       metadata?: Record<string, unknown>;
+    },
+    collectionConfig?: {
+      collectionName?: string;
+      collectionId?: string;
+      siteId: string;
     }
   ): Promise<ContentFieldRow | null> {
+    // Handle collection association
+    const finalContentField = { ...contentField };
+
+    if (collectionConfig) {
+      if (collectionConfig.collectionId) {
+        finalContentField.collection_id = collectionConfig.collectionId;
+      } else if (collectionConfig.collectionName) {
+        try {
+          const collection = await fieldCollectionsService.getOrCreate(
+            collectionConfig.collectionName,
+            collectionConfig.siteId
+          );
+          finalContentField.collection_id = collection.id;
+        } catch (error) {
+          console.error('Error creating/getting collection:', error);
+          // Continue without collection association if it fails
+        }
+      }
+    }
+
     // Create the content field first
-    const createdField = await this.create(contentField);
+    const createdField = await this.create(finalContentField);
 
     if (!createdField || !revisionConfig?.enabled) {
       return createdField;
@@ -44,7 +70,7 @@ class ContentFieldsService {
   }
 
   /**
-   * Update a content field with optional revision tracking
+   * Update a content field with optional revision tracking and collection association
    */
   async updateWithRevisions(
     id: string,
@@ -53,20 +79,45 @@ class ContentFieldsService {
       enabled: boolean;
       createdBy?: string;
       metadata?: Record<string, unknown>;
+    },
+    collectionConfig?: {
+      collectionName?: string;
+      collectionId?: string;
+      siteId: string;
     }
   ): Promise<ContentFieldRow | null> {
+    // Handle collection association
+    const finalUpdates = { ...updates };
+
+    if (collectionConfig) {
+      if (collectionConfig.collectionId) {
+        finalUpdates.collection_id = collectionConfig.collectionId;
+      } else if (collectionConfig.collectionName) {
+        try {
+          const collection = await fieldCollectionsService.getOrCreate(
+            collectionConfig.collectionName,
+            collectionConfig.siteId
+          );
+          finalUpdates.collection_id = collection.id;
+        } catch (error) {
+          console.error('Error creating/getting collection:', error);
+          // Continue without collection association if it fails
+        }
+      }
+    }
+
     // Check if we need to create a revision before updating
     let shouldCreateRevision = false;
     let oldField: ContentFieldRow | null = null;
 
-    if (revisionConfig?.enabled && updates.field_value !== undefined) {
+    if (revisionConfig?.enabled && finalUpdates.field_value !== undefined) {
       oldField = await this.getById(id);
       shouldCreateRevision =
-        !!oldField && oldField.field_value !== updates.field_value;
+        !!oldField && oldField.field_value !== finalUpdates.field_value;
     }
 
     // Update the content field
-    const updatedField = await this.update(id, updates);
+    const updatedField = await this.update(id, finalUpdates);
 
     if (!updatedField || !shouldCreateRevision || !oldField) {
       return updatedField;
@@ -86,6 +137,37 @@ class ContentFieldsService {
     }
 
     return updatedField;
+  }
+
+  /**
+   * Get content fields by collection
+   */
+  async getByCollectionId(collectionId: string): Promise<ContentFieldRow[]> {
+    const { data, error } = await this._supabase
+      .from('content_fields')
+      .select('*')
+      .eq('collection_id', collectionId);
+    if (error) {
+      console.error('Error fetching content fields by collection id:', error);
+    }
+    return data ?? [];
+  }
+
+  /**
+   * Get content fields by collection name
+   */
+  async getByCollectionName(
+    collectionName: string,
+    siteId: string
+  ): Promise<ContentFieldRow[]> {
+    const collection = await fieldCollectionsService.getByName(
+      collectionName,
+      siteId
+    );
+    if (!collection) {
+      return [];
+    }
+    return this.getByCollectionId(collection.id);
   }
 
   /**

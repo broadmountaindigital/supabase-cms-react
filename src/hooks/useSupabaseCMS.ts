@@ -35,6 +35,7 @@ export function useSupabaseCMS() {
       contentFields: serviceFactory.createContentFieldsService(),
       sitePages: serviceFactory.createSitePagesService(),
       profiles: serviceFactory.createProfilesService(),
+      fieldCollections: serviceFactory.createFieldCollectionsService(),
     };
   }, [serviceFactory]);
 

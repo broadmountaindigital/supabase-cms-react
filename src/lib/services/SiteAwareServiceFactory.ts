@@ -379,6 +379,102 @@ export class SiteAwareProfilesService extends SiteAwareService {
   }
 }
 
+// Field Collections Service (site-aware)
+export class SiteAwareFieldCollectionsService extends SiteAwareService {
+  async getAll() {
+    const { data, error } = await this.supabase
+      .from('field_collections')
+      .select('*')
+      .eq('site_id', this.siteId);
+
+    if (error) {
+      console.error('Error fetching field collections:', error);
+    }
+    return data ?? [];
+  }
+
+  async getById(id: string) {
+    const { data, error } = await this.supabase
+      .from('field_collections')
+      .select('*')
+      .eq('id', id)
+      .eq('site_id', this.siteId)
+      .single();
+
+    if (error) {
+      console.error('Error fetching field collection by id:', error);
+    }
+    return data ?? null;
+  }
+
+  async getByName(name: string) {
+    const { data, error } = await this.supabase
+      .from('field_collections')
+      .select('*')
+      .eq('name', name)
+      .eq('site_id', this.siteId)
+      .single();
+
+    if (error) {
+      console.error('Error fetching field collection by name:', error);
+    }
+    return data ?? null;
+  }
+
+  async create(name: string) {
+    const { data, error } = await this.supabase
+      .from('field_collections')
+      .insert({ name, site_id: this.siteId })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error creating field collection:', error);
+    }
+    return data ?? null;
+  }
+
+  async update(id: string, updates: { name: string }) {
+    const { data, error } = await this.supabase
+      .from('field_collections')
+      .update(updates)
+      .eq('id', id)
+      .eq('site_id', this.siteId)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error updating field collection:', error);
+    }
+    return data ?? null;
+  }
+
+  async delete(id: string) {
+    const { error } = await this.supabase
+      .from('field_collections')
+      .delete()
+      .eq('id', id)
+      .eq('site_id', this.siteId);
+
+    if (error) {
+      console.error('Error deleting field collection:', error);
+    }
+
+    return !error;
+  }
+
+  async getOrCreate(name: string) {
+    // Try to find existing collection
+    const existing = await this.getByName(name);
+    if (existing) {
+      return existing;
+    }
+
+    // Create new collection if it doesn't exist
+    return await this.create(name);
+  }
+}
+
 // Service Factory
 export class SiteAwareServiceFactory {
   private supabase: SupabaseClient<Database>;
@@ -403,5 +499,9 @@ export class SiteAwareServiceFactory {
 
   createProfilesService() {
     return new SiteAwareProfilesService(this.supabase, this.siteId);
+  }
+
+  createFieldCollectionsService() {
+    return new SiteAwareFieldCollectionsService(this.supabase, this.siteId);
   }
 }
