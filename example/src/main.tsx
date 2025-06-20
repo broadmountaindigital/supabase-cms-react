@@ -27,7 +27,7 @@ createRoot(document.getElementById('root')!).render(
       <SupabaseCMSProvider
         supabaseUrl={supabaseUrl}
         supabaseAnonKey={supabaseAnonKey}
-        siteId="fd32ae2f-c7ff-4e8a-9c20-08a6e5f6e2a5"
+        siteId="58ee3f3c-c843-4351-89e7-7e75f8aa3bef"
       >
         <App />
       </SupabaseCMSProvider>
