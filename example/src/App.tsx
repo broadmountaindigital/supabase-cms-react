@@ -61,7 +61,7 @@ function HomePage() {
 
         <section className="p-4 border rounded-lg">
           <h2 className="text-xl font-semibold mb-2">Collection Example</h2>
-          <p className="text-gray-600 mb-4">
+          <p className="text-gray-600">
             This is a collection of content fields. In edit mode, you can add,
             remove, and edit items.
           </p>

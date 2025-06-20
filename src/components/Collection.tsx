@@ -140,28 +140,27 @@ export default function Collection({
 
     const itemElements = items.map((item) => {
       const itemContent = (
-        <div
-          className={
-            classNames.itemContainer ??
-            'bmscms:flex bmscms:flex-row bmscms:items-center'
-          }
-        >
+        <>
           {/* Item Content */}
           <MultilineEditor
             fieldName={item.field_name}
             defaultValue={item.field_value || ''}
+            className="bmscms:w-full"
           />
           {isInEditMode && (
-            <EditorButton
-              onClick={() => removeItem(item.id)}
-              className={
-                classNames.removeButton ?? 'bmscms:bg-red-600 p-1 text-xs'
-              }
-            >
-              Remove
-            </EditorButton>
+            <span className="bmscms:inline-block">
+              <span
+                onClick={() => removeItem(item.id)}
+                className={
+                  classNames.removeButton ??
+                  'bmscms:bg-red-600 bmscms:p-1 bmscms:text-xs bmscms:cursor-pointer'
+                }
+              >
+                Remove
+              </span>
+            </span>
           )}
-        </div>
+        </>
       );
 
       // Wrap item in custom wrapper component if provided
@@ -173,7 +172,17 @@ export default function Collection({
         );
       }
 
-      return <div key={item.id}>{itemContent}</div>;
+      return (
+        <span
+          key={item.id}
+          className={
+            classNames.itemContainer ??
+            'bmscms:relative bmscms:flex bmscms:flex-row bmscms:space-between'
+          }
+        >
+          {itemContent}
+        </span>
+      );
     });
 
     // Wrap items in custom wrapper component if provided
@@ -185,15 +194,11 @@ export default function Collection({
       );
     }
 
-    return (
-      <div className={classNames.itemsContainer || 'bmscms:space-y-4'}>
-        {itemElements}
-      </div>
-    );
+    return <div className={classNames.itemsContainer}>{itemElements}</div>;
   };
 
   return (
-    <div className={classNames.container || 'bmscms:space-y-4'}>
+    <div className={classNames.container}>
       {/* Collection Items */}
       {renderItems()}
 

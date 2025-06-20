@@ -291,14 +291,14 @@ export default function MultilineEditor(props: MultilineEditorProps) {
   return (
     <>
       {isInEditMode ? (
-        <div className={className ?? 'bmscms:relative'}>
+        <span className={className + ' bmscms:relative'}>
           <textarea
             ref={textAreaRef}
             value={value}
             onChange={handleInput}
             rows={1}
             className={[
-              'bmscms:border-none bmscms:outline-none bmscms:bg-transparent bmscms:p-0 bmscms:m-0 bmscms:resize-none bmscms:w-full bmscms:overflow-hidden bmscms:box-border bmscms:block bmscms:text-inherit bmscms:font-inherit bmscms:field-sizing-content',
+              'bmscms:border-none bmscms:outline-none bmscms:transparent bmscms:p-0 bmscms:m-0 bmscms:resize-none bmscms:w-full bmscms:overflow-hidden bmscms:box-border bmscms:block bmscms:text-inherit bmscms:font-inherit bmscms:field-sizing-content',
             ]
               .filter(Boolean)
               .join(' ')}
@@ -322,7 +322,7 @@ export default function MultilineEditor(props: MultilineEditorProps) {
               ) : null;
             })()}
           </div>
-        </div>
+        </span>
       ) : (
         <span
           className={[className, 'bmscms:whitespace-pre-wrap']
@@ -361,8 +361,8 @@ function renderSaveIndicator(saveState: SaveState) {
 
 function renderErrorMessage(error: string) {
   return (
-    <div className="bmscms:text-red-600 bmscms:text-sm bmscms:mt-2 bmscms:p-2 bmscms:bg-red-100 bmscms:rounded bmscms:border bmscms:border-red-200">
+    <span className="bmscms:text-red-600 bmscms:text-sm bmscms:mt-2 bmscms:p-2 bmscms:bg-red-100 bmscms:rounded bmscms:border bmscms:border-red-200">
       {error}
-    </div>
+    </span>
   );
 }
