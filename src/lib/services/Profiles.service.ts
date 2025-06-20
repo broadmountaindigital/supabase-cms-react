@@ -3,12 +3,12 @@ import type { ProfileRow } from '@/types/database';
 import type { TablesInsert, TablesUpdate } from '@/types/database/supabase';
 
 class ProfilesService {
-  constructor(private readonly _supabase = supabase) {}
+  constructor(readonly db = supabase) {}
 
   async getAll(): Promise<ProfileRow[]> {
     // Profiles don't have site_id, so we just return all profiles
     // The siteId parameter is kept for consistency but not used
-    const { data, error } = await this._supabase.from('profiles').select('*');
+    const { data, error } = await this.db.from('profiles').select('*');
     if (error) {
       console.error('Error fetching profiles:', error);
     }
@@ -16,7 +16,7 @@ class ProfilesService {
   }
 
   async getById(id: string): Promise<ProfileRow | null> {
-    const { data, error } = await this._supabase
+    const { data, error } = await this.db
       .from('profiles')
       .select('*')
       .eq('id', id)
@@ -28,7 +28,7 @@ class ProfilesService {
   }
 
   async create(profile: TablesInsert<'profiles'>): Promise<ProfileRow | null> {
-    const { data, error } = await this._supabase
+    const { data, error } = await this.db
       .from('profiles')
       .insert(profile)
       .select()
@@ -43,7 +43,7 @@ class ProfilesService {
     id: string,
     updates: TablesUpdate<'profiles'>
   ): Promise<ProfileRow | null> {
-    const { data, error } = await this._supabase
+    const { data, error } = await this.db
       .from('profiles')
       .update(updates)
       .eq('id', id)
@@ -56,10 +56,7 @@ class ProfilesService {
   }
 
   async delete(id: string): Promise<boolean> {
-    const { error } = await this._supabase
-      .from('profiles')
-      .delete()
-      .eq('id', id);
+    const { error } = await this.db.from('profiles').delete().eq('id', id);
     if (error) {
       console.error('Error deleting profile:', error);
     }

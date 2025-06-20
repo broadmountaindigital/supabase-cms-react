@@ -7,8 +7,8 @@ import type { ContentFieldRevision } from '@/types/RevisionTypes';
 
 class ContentFieldsService {
   constructor(
-    private readonly _supabase = supabase,
-    private readonly _siteId?: string
+    readonly db = supabase,
+    readonly siteId?: string
   ) {}
 
   /**
@@ -33,13 +33,13 @@ class ContentFieldsService {
       if (collectionConfig.collectionId) {
         finalContentField.collection_id = collectionConfig.collectionId;
       } else if (collectionConfig.collectionName) {
-        if (!this._siteId) {
+        if (!this.siteId) {
           throw new Error('Site ID is required for collection operations');
         }
         try {
           const collection = await fieldCollectionsService.getOrCreate(
             collectionConfig.collectionName,
-            this._siteId
+            this.siteId
           );
           finalContentField.collection_id = collection.id;
         } catch (error) {
@@ -97,13 +97,13 @@ class ContentFieldsService {
       if (collectionConfig.collectionId) {
         finalUpdates.collection_id = collectionConfig.collectionId;
       } else if (collectionConfig.collectionName) {
-        if (!this._siteId) {
+        if (!this.siteId) {
           throw new Error('Site ID is required for collection operations');
         }
         try {
           const collection = await fieldCollectionsService.getOrCreate(
             collectionConfig.collectionName,
-            this._siteId
+            this.siteId
           );
           finalUpdates.collection_id = collection.id;
         } catch (error) {
@@ -150,7 +150,7 @@ class ContentFieldsService {
    * Get content fields by collection
    */
   async getByCollectionId(collectionId: string): Promise<ContentFieldRow[]> {
-    const { data, error } = await this._supabase
+    const { data, error } = await this.db
       .from('content_fields')
       .select('*')
       .eq('collection_id', collectionId);
@@ -166,13 +166,13 @@ class ContentFieldsService {
   async getByCollectionName(
     collectionName: string
   ): Promise<ContentFieldRow[]> {
-    if (!this._siteId) {
+    if (!this.siteId) {
       throw new Error('Site ID is required for collection operations');
     }
 
     const collection = await fieldCollectionsService.getByName(
       collectionName,
-      this._siteId
+      this.siteId
     );
     if (!collection) {
       return [];
@@ -205,10 +205,10 @@ class ContentFieldsService {
   }
 
   async getAll(): Promise<ContentFieldRow[]> {
-    let query = this._supabase.from('content_fields').select('*');
+    let query = this.db.from('content_fields').select('*');
 
-    if (this._siteId) {
-      query = query.eq('site_id', this._siteId);
+    if (this.siteId) {
+      query = query.eq('site_id', this.siteId);
     }
 
     const { data, error } = await query;
@@ -219,10 +219,10 @@ class ContentFieldsService {
   }
 
   async getById(id: string): Promise<ContentFieldRow | null> {
-    let query = this._supabase.from('content_fields').select('*').eq('id', id);
+    let query = this.db.from('content_fields').select('*').eq('id', id);
 
-    if (this._siteId) {
-      query = query.eq('site_id', this._siteId);
+    if (this.siteId) {
+      query = query.eq('site_id', this.siteId);
     }
 
     const { data, error } = await query.single();
@@ -233,13 +233,13 @@ class ContentFieldsService {
   }
 
   async getByFieldName(fieldName: string): Promise<ContentFieldRow | null> {
-    let query = this._supabase
+    let query = this.db
       .from('content_fields')
       .select('*')
       .eq('field_name', fieldName);
 
-    if (this._siteId) {
-      query = query.eq('site_id', this._siteId);
+    if (this.siteId) {
+      query = query.eq('site_id', this.siteId);
     }
 
     const { data, error } = await query.single();
@@ -252,11 +252,11 @@ class ContentFieldsService {
   async create(
     contentField: TablesInsert<'content_fields'>
   ): Promise<ContentFieldRow | null> {
-    const finalContentField = this._siteId
-      ? { ...contentField, site_id: this._siteId }
+    const finalContentField = this.siteId
+      ? { ...contentField, site_id: this.siteId }
       : contentField;
 
-    const { data, error } = await this._supabase
+    const { data, error } = await this.db
       .from('content_fields')
       .insert(finalContentField)
       .select()
@@ -271,13 +271,10 @@ class ContentFieldsService {
     id: string,
     updates: TablesUpdate<'content_fields'>
   ): Promise<ContentFieldRow | null> {
-    let query = this._supabase
-      .from('content_fields')
-      .update(updates)
-      .eq('id', id);
+    let query = this.db.from('content_fields').update(updates).eq('id', id);
 
-    if (this._siteId) {
-      query = query.eq('site_id', this._siteId);
+    if (this.siteId) {
+      query = query.eq('site_id', this.siteId);
     }
 
     const { data, error } = await query.select().single();
@@ -288,10 +285,10 @@ class ContentFieldsService {
   }
 
   async delete(id: string): Promise<boolean> {
-    let query = this._supabase.from('content_fields').delete().eq('id', id);
+    let query = this.db.from('content_fields').delete().eq('id', id);
 
-    if (this._siteId) {
-      query = query.eq('site_id', this._siteId);
+    if (this.siteId) {
+      query = query.eq('site_id', this.siteId);
     }
 
     const { error } = await query;
@@ -305,7 +302,7 @@ class ContentFieldsService {
    * Create a site-aware instance of this service
    */
   withSite(siteId: string): ContentFieldsService {
-    return new ContentFieldsService(this._supabase, siteId);
+    return new ContentFieldsService(this.db, siteId);
   }
 }
 

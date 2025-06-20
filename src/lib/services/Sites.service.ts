@@ -4,15 +4,15 @@ import type { TablesInsert, TablesUpdate } from '@/types/database/supabase';
 
 class SitesService {
   constructor(
-    private readonly _supabase = supabase,
-    private readonly _siteId?: string
+    readonly db = supabase,
+    readonly siteId?: string
   ) {}
 
   async getAll(): Promise<SiteRow[]> {
-    let query = this._supabase.from('sites').select('*');
+    let query = this.db.from('sites').select('*');
 
-    if (this._siteId) {
-      query = query.eq('id', this._siteId);
+    if (this.siteId) {
+      query = query.eq('id', this.siteId);
     }
 
     const { data, error } = await query;
@@ -23,10 +23,10 @@ class SitesService {
   }
 
   async getById(id: string): Promise<SiteRow | null> {
-    let query = this._supabase.from('sites').select('*').eq('id', id);
+    let query = this.db.from('sites').select('*').eq('id', id);
 
-    if (this._siteId) {
-      query = query.eq('id', this._siteId);
+    if (this.siteId) {
+      query = query.eq('id', this.siteId);
     }
 
     const { data, error } = await query.single();
@@ -37,7 +37,7 @@ class SitesService {
   }
 
   async create(site: TablesInsert<'sites'>): Promise<SiteRow | null> {
-    const { data, error } = await this._supabase
+    const { data, error } = await this.db
       .from('sites')
       .insert(site)
       .select()
@@ -52,10 +52,10 @@ class SitesService {
     id: string,
     updates: TablesUpdate<'sites'>
   ): Promise<SiteRow | null> {
-    let query = this._supabase.from('sites').update(updates).eq('id', id);
+    let query = this.db.from('sites').update(updates).eq('id', id);
 
-    if (this._siteId) {
-      query = query.eq('id', this._siteId);
+    if (this.siteId) {
+      query = query.eq('id', this.siteId);
     }
 
     const { data, error } = await query.select().single();
@@ -66,10 +66,10 @@ class SitesService {
   }
 
   async delete(id: string): Promise<boolean> {
-    let query = this._supabase.from('sites').delete().eq('id', id);
+    let query = this.db.from('sites').delete().eq('id', id);
 
-    if (this._siteId) {
-      query = query.eq('id', this._siteId);
+    if (this.siteId) {
+      query = query.eq('id', this.siteId);
     }
 
     const { error } = await query;
@@ -83,7 +83,7 @@ class SitesService {
    * Create a site-aware instance of this service
    */
   withSite(siteId: string): SitesService {
-    return new SitesService(this._supabase, siteId);
+    return new SitesService(this.db, siteId);
   }
 }
 

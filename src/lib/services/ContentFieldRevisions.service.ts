@@ -17,7 +17,7 @@ import type {
  * Provides CRUD operations and revision-specific functionality
  */
 class ContentFieldRevisionsService {
-  constructor(private readonly _supabase = supabase) {}
+  constructor(readonly db = supabase) {}
 
   /**
    * Get all revisions for a specific content field
@@ -35,7 +35,7 @@ class ContentFieldRevisionsService {
       date_to,
     } = params;
 
-    let query = this._supabase
+    let query = this.db
       .from('content_field_revisions')
       .select('*')
       .eq('content_field_id', content_field_id)
@@ -59,7 +59,7 @@ class ContentFieldRevisionsService {
     }
 
     // Get total count
-    const { count } = await this._supabase
+    const { count } = await this.db
       .from('content_field_revisions')
       .select('*', { count: 'exact', head: true })
       .eq('content_field_id', content_field_id);
@@ -97,7 +97,7 @@ class ContentFieldRevisionsService {
    * Get a specific revision by ID
    */
   async getRevisionById(id: string): Promise<ContentFieldRevision | null> {
-    const { data, error } = await this._supabase
+    const { data, error } = await this.db
       .from('content_field_revisions')
       .select('*')
       .eq('id', id)
@@ -121,7 +121,7 @@ class ContentFieldRevisionsService {
 
     try {
       // Use the database function for creating revisions
-      const { data, error } = await this._supabase.rpc(
+      const { data, error } = await this.db.rpc(
         'create_content_field_revision',
         {
           p_content_field_id: content_field_id,
@@ -150,7 +150,7 @@ class ContentFieldRevisionsService {
 
       // Update metadata if provided
       if (metadata && Object.keys(metadata).length > 0) {
-        const { error: metadataError } = await this._supabase
+        const { error: metadataError } = await this.db
           .from('content_field_revisions')
           .update({ metadata: metadata as never })
           .eq('id', revision.id);
@@ -185,7 +185,7 @@ class ContentFieldRevisionsService {
 
     try {
       // Use the database function for publishing revisions
-      const { data, error } = await this._supabase.rpc(
+      const { data, error } = await this.db.rpc(
         'publish_content_field_revision',
         {
           p_revision_id: revision_id,
@@ -226,7 +226,7 @@ class ContentFieldRevisionsService {
 
     try {
       // Use the database function for rollback
-      const { data, error } = await this._supabase.rpc('rollback_to_revision', {
+      const { data, error } = await this.db.rpc('rollback_to_revision', {
         p_revision_id: revision_id,
         p_created_by: created_by,
       });
@@ -312,7 +312,7 @@ class ContentFieldRevisionsService {
     revisionId: string
   ): Promise<RevisionServiceResponse<boolean>> {
     try {
-      const { error } = await this._supabase
+      const { error } = await this.db
         .from('content_field_revisions')
         .update({
           metadata: { archived: true, archived_at: new Date().toISOString() },
@@ -376,7 +376,7 @@ class ContentFieldRevisionsService {
 
           case 'delete': {
             // Permanent delete (use with caution)
-            const { error } = await this._supabase
+            const { error } = await this.db
               .from('content_field_revisions')
               .delete()
               .eq('id', revisionId);
@@ -417,7 +417,7 @@ class ContentFieldRevisionsService {
   async getCurrentRevision(
     contentFieldId: string
   ): Promise<ContentFieldRevision | null> {
-    const { data, error } = await this._supabase
+    const { data, error } = await this.db
       .from('content_field_revisions')
       .select('*')
       .eq('content_field_id', contentFieldId)
@@ -438,7 +438,7 @@ class ContentFieldRevisionsService {
   async getPublishedRevision(
     contentFieldId: string
   ): Promise<ContentFieldRevision | null> {
-    const { data, error } = await this._supabase
+    const { data, error } = await this.db
       .from('content_field_revisions')
       .select('*')
       .eq('content_field_id', contentFieldId)

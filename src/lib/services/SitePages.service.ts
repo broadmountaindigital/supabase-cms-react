@@ -4,15 +4,15 @@ import type { TablesInsert, TablesUpdate } from '@/types/database/supabase';
 
 class SitePagesService {
   constructor(
-    private readonly _supabase = supabase,
-    private readonly _siteId?: string
+    readonly db = supabase,
+    readonly siteId?: string
   ) {}
 
   async getAll(): Promise<SitePageRow[]> {
-    let query = this._supabase.from('site_pages').select('*');
+    let query = this.db.from('site_pages').select('*');
 
-    if (this._siteId) {
-      query = query.eq('site_id', this._siteId);
+    if (this.siteId) {
+      query = query.eq('site_id', this.siteId);
     }
 
     const { data, error } = await query;
@@ -23,10 +23,10 @@ class SitePagesService {
   }
 
   async getById(id: string): Promise<SitePageRow | null> {
-    let query = this._supabase.from('site_pages').select('*').eq('id', id);
+    let query = this.db.from('site_pages').select('*').eq('id', id);
 
-    if (this._siteId) {
-      query = query.eq('site_id', this._siteId);
+    if (this.siteId) {
+      query = query.eq('site_id', this.siteId);
     }
 
     const { data, error } = await query.single();
@@ -39,11 +39,11 @@ class SitePagesService {
   async create(
     sitePage: TablesInsert<'site_pages'>
   ): Promise<SitePageRow | null> {
-    const finalSitePage = this._siteId
-      ? { ...sitePage, site_id: this._siteId }
+    const finalSitePage = this.siteId
+      ? { ...sitePage, site_id: this.siteId }
       : sitePage;
 
-    const { data, error } = await this._supabase
+    const { data, error } = await this.db
       .from('site_pages')
       .insert(finalSitePage)
       .select()
@@ -58,10 +58,10 @@ class SitePagesService {
     id: string,
     updates: TablesUpdate<'site_pages'>
   ): Promise<SitePageRow | null> {
-    let query = this._supabase.from('site_pages').update(updates).eq('id', id);
+    let query = this.db.from('site_pages').update(updates).eq('id', id);
 
-    if (this._siteId) {
-      query = query.eq('site_id', this._siteId);
+    if (this.siteId) {
+      query = query.eq('site_id', this.siteId);
     }
 
     const { data, error } = await query.select().single();
@@ -72,10 +72,10 @@ class SitePagesService {
   }
 
   async delete(id: string): Promise<boolean> {
-    let query = this._supabase.from('site_pages').delete().eq('id', id);
+    let query = this.db.from('site_pages').delete().eq('id', id);
 
-    if (this._siteId) {
-      query = query.eq('site_id', this._siteId);
+    if (this.siteId) {
+      query = query.eq('site_id', this.siteId);
     }
 
     const { error } = await query;
@@ -89,7 +89,7 @@ class SitePagesService {
    * Create a site-aware instance of this service
    */
   withSite(siteId: string): SitePagesService {
-    return new SitePagesService(this._supabase, siteId);
+    return new SitePagesService(this.db, siteId);
   }
 }
 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSupabaseCMS } from '../hooks/useSupabaseCMS';
 import MultilineEditor from './MultilineEditor';
 import { EditorButton } from './EditorButton';
@@ -24,13 +24,9 @@ export interface CollectionProps {
   /** Custom empty state message */
   emptyStateMessage?: string;
   /** Custom wrapper component for the list container with props */
-  ListWrapperComponent?: React.ComponentType<
-    { children: React.ReactNode } & Record<string, unknown>
-  >;
+  ListWrapperComponent?: React.ElementType;
   /** Custom wrapper component for each list item with props */
-  ListItemWrapperComponent?: React.ComponentType<
-    { children: React.ReactNode } & Record<string, unknown>
-  >;
+  ListItemWrapperComponent?: React.ElementType;
   /** Props to pass to the ListWrapperComponent */
   listWrapperProps?: Record<string, unknown>;
   /** Props to pass to each ListItemWrapperComponent */
@@ -165,36 +161,30 @@ export default function Collection({
 
       // Wrap item in custom wrapper component if provided
       if (ListItemWrapperComponent) {
-        return (
-          <ListItemWrapperComponent key={item.id} {...listItemWrapperProps}>
-            {itemContent}
-          </ListItemWrapperComponent>
+        return React.createElement(
+          ListItemWrapperComponent,
+          { key: item.id, ...listItemWrapperProps },
+          itemContent
         );
       }
 
-      return (
-        <span
-          key={item.id}
-          className={
-            classNames.itemContainer ??
-            'bmscms:relative bmscms:flex bmscms:flex-row bmscms:space-between'
-          }
-        >
-          {itemContent}
-        </span>
-      );
+      return <div key={item.id}>{itemContent}</div>;
     });
 
     // Wrap items in custom wrapper component if provided
     if (ListWrapperComponent) {
-      return (
-        <ListWrapperComponent {...listWrapperProps}>
-          {itemElements}
-        </ListWrapperComponent>
+      return React.createElement(
+        ListWrapperComponent,
+        listWrapperProps,
+        itemElements
       );
     }
 
-    return <div className={classNames.itemsContainer}>{itemElements}</div>;
+    return (
+      <div className={classNames.itemsContainer || 'bmscms:space-y-4'}>
+        {itemElements}
+      </div>
+    );
   };
 
   return (

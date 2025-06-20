@@ -11,15 +11,15 @@ export interface FieldCollectionRow {
 
 class FieldCollectionsService {
   constructor(
-    private readonly _supabase = supabase,
-    private readonly _siteId?: string
+    readonly db = supabase,
+    readonly siteId?: string
   ) {}
 
   async getAll(): Promise<FieldCollectionRow[]> {
-    let query = this._supabase.from('field_collections').select('*');
+    let query = this.db.from('field_collections').select('*');
 
-    if (this._siteId) {
-      query = query.eq('site_id', this._siteId);
+    if (this.siteId) {
+      query = query.eq('site_id', this.siteId);
     }
 
     const { data, error } = await query;
@@ -30,13 +30,10 @@ class FieldCollectionsService {
   }
 
   async getById(id: string): Promise<FieldCollectionRow | null> {
-    let query = this._supabase
-      .from('field_collections')
-      .select('*')
-      .eq('id', id);
+    let query = this.db.from('field_collections').select('*').eq('id', id);
 
-    if (this._siteId) {
-      query = query.eq('site_id', this._siteId);
+    if (this.siteId) {
+      query = query.eq('site_id', this.siteId);
     }
 
     const { data, error } = await query.single();
@@ -47,7 +44,7 @@ class FieldCollectionsService {
   }
 
   async getBySiteId(siteId: string): Promise<FieldCollectionRow[]> {
-    const { data, error } = await this._supabase
+    const { data, error } = await this.db
       .from('field_collections')
       .select('*')
       .eq('site_id', siteId);
@@ -61,13 +58,10 @@ class FieldCollectionsService {
     name: string,
     siteId?: string
   ): Promise<FieldCollectionRow | null> {
-    let query = this._supabase
-      .from('field_collections')
-      .select('*')
-      .eq('name', name);
+    let query = this.db.from('field_collections').select('*').eq('name', name);
 
-    // Use provided siteId, then this._siteId, then no filtering
-    const targetSiteId = siteId || this._siteId;
+    // Use provided siteId, then this.siteId, then no filtering
+    const targetSiteId = siteId || this.siteId;
     if (targetSiteId) {
       query = query.eq('site_id', targetSiteId);
     }
@@ -82,11 +76,11 @@ class FieldCollectionsService {
   async create(
     fieldCollection: TablesInsert<'field_collections'>
   ): Promise<FieldCollectionRow | null> {
-    const finalFieldCollection = this._siteId
-      ? { ...fieldCollection, site_id: this._siteId }
+    const finalFieldCollection = this.siteId
+      ? { ...fieldCollection, site_id: this.siteId }
       : fieldCollection;
 
-    const { data, error } = await this._supabase
+    const { data, error } = await this.db
       .from('field_collections')
       .insert(finalFieldCollection)
       .select()
@@ -101,13 +95,10 @@ class FieldCollectionsService {
     id: string,
     updates: TablesUpdate<'field_collections'>
   ): Promise<FieldCollectionRow | null> {
-    let query = this._supabase
-      .from('field_collections')
-      .update(updates)
-      .eq('id', id);
+    let query = this.db.from('field_collections').update(updates).eq('id', id);
 
-    if (this._siteId) {
-      query = query.eq('site_id', this._siteId);
+    if (this.siteId) {
+      query = query.eq('site_id', this.siteId);
     }
 
     const { data, error } = await query.select().single();
@@ -118,10 +109,10 @@ class FieldCollectionsService {
   }
 
   async delete(id: string): Promise<boolean> {
-    let query = this._supabase.from('field_collections').delete().eq('id', id);
+    let query = this.db.from('field_collections').delete().eq('id', id);
 
-    if (this._siteId) {
-      query = query.eq('site_id', this._siteId);
+    if (this.siteId) {
+      query = query.eq('site_id', this.siteId);
     }
 
     const { error } = await query;
@@ -135,7 +126,7 @@ class FieldCollectionsService {
     name: string,
     siteId?: string
   ): Promise<FieldCollectionRow> {
-    const targetSiteId = siteId || this._siteId;
+    const targetSiteId = siteId || this.siteId;
     if (!targetSiteId) {
       throw new Error('Site ID is required for getOrCreate operation');
     }
@@ -163,7 +154,7 @@ class FieldCollectionsService {
    * Create a site-aware instance of this service
    */
   withSite(siteId: string): FieldCollectionsService {
-    return new FieldCollectionsService(this._supabase, siteId);
+    return new FieldCollectionsService(this.db, siteId);
   }
 }
 
