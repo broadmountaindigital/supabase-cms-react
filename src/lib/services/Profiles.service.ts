@@ -6,6 +6,8 @@ class ProfilesService {
   constructor(private readonly _supabase = supabase) {}
 
   async getAll(): Promise<ProfileRow[]> {
+    // Profiles don't have site_id, so we just return all profiles
+    // The siteId parameter is kept for consistency but not used
     const { data, error } = await this._supabase.from('profiles').select('*');
     if (error) {
       console.error('Error fetching profiles:', error);

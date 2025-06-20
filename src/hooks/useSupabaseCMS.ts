@@ -1,7 +1,11 @@
 import { useMemo, useState } from 'react';
 import { useSiteContext } from '../providers/useSiteContext';
 import { useCms } from '../providers/useCms';
-import { SiteAwareServiceFactory } from '../lib/services/SiteAwareServiceFactory';
+import { contentFieldsService } from '../lib/services/ContentFields.service';
+import { fieldCollectionsService } from '../lib/services/FieldCollections.service';
+import { sitesService } from '../lib/services/Sites.service';
+import { sitePagesService } from '../lib/services/SitePages.service';
+import { profilesService } from '../lib/services/Profiles.service';
 import type {
   AuthError,
   AuthResponse,
@@ -24,20 +28,16 @@ export function useSupabaseCMS() {
   const [authLoading, setAuthLoading] = useState(false);
   const [authError, setAuthError] = useState<AuthError | null>(null);
 
-  // --- Service Factory ---
-  const serviceFactory = useMemo(() => {
-    return new SiteAwareServiceFactory(supabase, siteId);
-  }, [supabase, siteId]);
-
+  // --- Services with site context ---
   const services = useMemo(() => {
     return {
-      sites: serviceFactory.createSitesService(),
-      contentFields: serviceFactory.createContentFieldsService(),
-      sitePages: serviceFactory.createSitePagesService(),
-      profiles: serviceFactory.createProfilesService(),
-      fieldCollections: serviceFactory.createFieldCollectionsService(),
+      sites: sitesService.withSite(siteId),
+      contentFields: contentFieldsService.withSite(siteId),
+      sitePages: sitePagesService.withSite(siteId),
+      profiles: profilesService,
+      fieldCollections: fieldCollectionsService.withSite(siteId),
     };
-  }, [serviceFactory]);
+  }, [siteId]);
 
   // --- Auth Functions ---
   async function signIn(

@@ -6,7 +6,10 @@ import { fieldCollectionsService } from './FieldCollections.service';
 import type { ContentFieldRevision } from '@/types/RevisionTypes';
 
 class ContentFieldsService {
-  constructor(private readonly _supabase = supabase) {}
+  constructor(
+    private readonly _supabase = supabase,
+    private readonly _siteId?: string
+  ) {}
 
   /**
    * Create a content field with optional revision tracking and collection association
@@ -21,7 +24,6 @@ class ContentFieldsService {
     collectionConfig?: {
       collectionName?: string;
       collectionId?: string;
-      siteId: string;
     }
   ): Promise<ContentFieldRow | null> {
     // Handle collection association
@@ -31,10 +33,13 @@ class ContentFieldsService {
       if (collectionConfig.collectionId) {
         finalContentField.collection_id = collectionConfig.collectionId;
       } else if (collectionConfig.collectionName) {
+        if (!this._siteId) {
+          throw new Error('Site ID is required for collection operations');
+        }
         try {
           const collection = await fieldCollectionsService.getOrCreate(
             collectionConfig.collectionName,
-            collectionConfig.siteId
+            this._siteId
           );
           finalContentField.collection_id = collection.id;
         } catch (error) {
@@ -83,7 +88,6 @@ class ContentFieldsService {
     collectionConfig?: {
       collectionName?: string;
       collectionId?: string;
-      siteId: string;
     }
   ): Promise<ContentFieldRow | null> {
     // Handle collection association
@@ -93,10 +97,13 @@ class ContentFieldsService {
       if (collectionConfig.collectionId) {
         finalUpdates.collection_id = collectionConfig.collectionId;
       } else if (collectionConfig.collectionName) {
+        if (!this._siteId) {
+          throw new Error('Site ID is required for collection operations');
+        }
         try {
           const collection = await fieldCollectionsService.getOrCreate(
             collectionConfig.collectionName,
-            collectionConfig.siteId
+            this._siteId
           );
           finalUpdates.collection_id = collection.id;
         } catch (error) {
@@ -157,12 +164,15 @@ class ContentFieldsService {
    * Get content fields by collection name
    */
   async getByCollectionName(
-    collectionName: string,
-    siteId: string
+    collectionName: string
   ): Promise<ContentFieldRow[]> {
+    if (!this._siteId) {
+      throw new Error('Site ID is required for collection operations');
+    }
+
     const collection = await fieldCollectionsService.getByName(
       collectionName,
-      siteId
+      this._siteId
     );
     if (!collection) {
       return [];
@@ -195,9 +205,13 @@ class ContentFieldsService {
   }
 
   async getAll(): Promise<ContentFieldRow[]> {
-    const { data, error } = await this._supabase
-      .from('content_fields')
-      .select('*');
+    let query = this._supabase.from('content_fields').select('*');
+
+    if (this._siteId) {
+      query = query.eq('site_id', this._siteId);
+    }
+
+    const { data, error } = await query;
     if (error) {
       console.error('Error fetching content fields:', error);
     }
@@ -205,11 +219,13 @@ class ContentFieldsService {
   }
 
   async getById(id: string): Promise<ContentFieldRow | null> {
-    const { data, error } = await this._supabase
-      .from('content_fields')
-      .select('*')
-      .eq('id', id)
-      .single();
+    let query = this._supabase.from('content_fields').select('*').eq('id', id);
+
+    if (this._siteId) {
+      query = query.eq('site_id', this._siteId);
+    }
+
+    const { data, error } = await query.single();
     if (error) {
       console.error('Error fetching content field by id:', error);
     }
@@ -217,13 +233,18 @@ class ContentFieldsService {
   }
 
   async getByFieldName(fieldName: string): Promise<ContentFieldRow | null> {
-    const { data, error } = await this._supabase
+    let query = this._supabase
       .from('content_fields')
       .select('*')
-      .eq('field_name', fieldName)
-      .single();
+      .eq('field_name', fieldName);
+
+    if (this._siteId) {
+      query = query.eq('site_id', this._siteId);
+    }
+
+    const { data, error } = await query.single();
     if (error) {
-      console.error('Error fetching content field by id:', error);
+      console.error('Error fetching content field by field name:', error);
     }
     return data ?? null;
   }
@@ -231,9 +252,13 @@ class ContentFieldsService {
   async create(
     contentField: TablesInsert<'content_fields'>
   ): Promise<ContentFieldRow | null> {
+    const finalContentField = this._siteId
+      ? { ...contentField, site_id: this._siteId }
+      : contentField;
+
     const { data, error } = await this._supabase
       .from('content_fields')
-      .insert(contentField)
+      .insert(finalContentField)
       .select()
       .single();
     if (error) {
@@ -246,12 +271,16 @@ class ContentFieldsService {
     id: string,
     updates: TablesUpdate<'content_fields'>
   ): Promise<ContentFieldRow | null> {
-    const { data, error } = await this._supabase
+    let query = this._supabase
       .from('content_fields')
       .update(updates)
-      .eq('id', id)
-      .select()
-      .single();
+      .eq('id', id);
+
+    if (this._siteId) {
+      query = query.eq('site_id', this._siteId);
+    }
+
+    const { data, error } = await query.select().single();
     if (error) {
       console.error('Error updating content field:', error);
     }
@@ -259,14 +288,24 @@ class ContentFieldsService {
   }
 
   async delete(id: string): Promise<boolean> {
-    const { error } = await this._supabase
-      .from('content_fields')
-      .delete()
-      .eq('id', id);
+    let query = this._supabase.from('content_fields').delete().eq('id', id);
+
+    if (this._siteId) {
+      query = query.eq('site_id', this._siteId);
+    }
+
+    const { error } = await query;
     if (error) {
       console.error('Error deleting content field:', error);
     }
     return !error;
+  }
+
+  /**
+   * Create a site-aware instance of this service
+   */
+  withSite(siteId: string): ContentFieldsService {
+    return new ContentFieldsService(this._supabase, siteId);
   }
 }
 

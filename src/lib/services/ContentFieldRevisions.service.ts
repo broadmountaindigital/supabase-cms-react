@@ -15,13 +15,6 @@ import type {
 /**
  * Service for managing content field revisions
  * Provides CRUD operations and revision-specific functionality
- *
- * ⚠️ IMPORTANT: This service requires the content revision database migration to be applied first:
- * Run: npx supabase db push (or your migration command)
- * The migration file: supabase/migrations/20250616144303_add_content_revision_support.sql
- *
- * This service will not work correctly until the migration is applied and the database
- * schema is updated with the content_field_revisions table and related functions.
  */
 class ContentFieldRevisionsService {
   constructor(private readonly _supabase = supabase) {}

@@ -10,12 +10,19 @@ export interface FieldCollectionRow {
 }
 
 class FieldCollectionsService {
-  constructor(private readonly _supabase = supabase) {}
+  constructor(
+    private readonly _supabase = supabase,
+    private readonly _siteId?: string
+  ) {}
 
   async getAll(): Promise<FieldCollectionRow[]> {
-    const { data, error } = await this._supabase
-      .from('field_collections')
-      .select('*');
+    let query = this._supabase.from('field_collections').select('*');
+
+    if (this._siteId) {
+      query = query.eq('site_id', this._siteId);
+    }
+
+    const { data, error } = await query;
     if (error) {
       console.error('Error fetching field collections:', error);
     }
@@ -23,11 +30,16 @@ class FieldCollectionsService {
   }
 
   async getById(id: string): Promise<FieldCollectionRow | null> {
-    const { data, error } = await this._supabase
+    let query = this._supabase
       .from('field_collections')
       .select('*')
-      .eq('id', id)
-      .single();
+      .eq('id', id);
+
+    if (this._siteId) {
+      query = query.eq('site_id', this._siteId);
+    }
+
+    const { data, error } = await query.single();
     if (error) {
       console.error('Error fetching field collection by id:', error);
     }
@@ -54,8 +66,10 @@ class FieldCollectionsService {
       .select('*')
       .eq('name', name);
 
-    if (siteId) {
-      query = query.eq('site_id', siteId);
+    // Use provided siteId, then this._siteId, then no filtering
+    const targetSiteId = siteId || this._siteId;
+    if (targetSiteId) {
+      query = query.eq('site_id', targetSiteId);
     }
 
     const { data, error } = await query.single();
@@ -68,9 +82,13 @@ class FieldCollectionsService {
   async create(
     fieldCollection: TablesInsert<'field_collections'>
   ): Promise<FieldCollectionRow | null> {
+    const finalFieldCollection = this._siteId
+      ? { ...fieldCollection, site_id: this._siteId }
+      : fieldCollection;
+
     const { data, error } = await this._supabase
       .from('field_collections')
-      .insert(fieldCollection)
+      .insert(finalFieldCollection)
       .select()
       .single();
     if (error) {
@@ -83,12 +101,16 @@ class FieldCollectionsService {
     id: string,
     updates: TablesUpdate<'field_collections'>
   ): Promise<FieldCollectionRow | null> {
-    const { data, error } = await this._supabase
+    let query = this._supabase
       .from('field_collections')
       .update(updates)
-      .eq('id', id)
-      .select()
-      .single();
+      .eq('id', id);
+
+    if (this._siteId) {
+      query = query.eq('site_id', this._siteId);
+    }
+
+    const { data, error } = await query.select().single();
     if (error) {
       console.error('Error updating field collection:', error);
     }
@@ -96,19 +118,30 @@ class FieldCollectionsService {
   }
 
   async delete(id: string): Promise<boolean> {
-    const { error } = await this._supabase
-      .from('field_collections')
-      .delete()
-      .eq('id', id);
+    let query = this._supabase.from('field_collections').delete().eq('id', id);
+
+    if (this._siteId) {
+      query = query.eq('site_id', this._siteId);
+    }
+
+    const { error } = await query;
     if (error) {
       console.error('Error deleting field collection:', error);
     }
     return !error;
   }
 
-  async getOrCreate(name: string, siteId: string): Promise<FieldCollectionRow> {
+  async getOrCreate(
+    name: string,
+    siteId?: string
+  ): Promise<FieldCollectionRow> {
+    const targetSiteId = siteId || this._siteId;
+    if (!targetSiteId) {
+      throw new Error('Site ID is required for getOrCreate operation');
+    }
+
     // Try to find existing collection
-    const existing = await this.getByName(name, siteId);
+    const existing = await this.getByName(name, targetSiteId);
     if (existing) {
       return existing;
     }
@@ -116,7 +149,7 @@ class FieldCollectionsService {
     // Create new collection if it doesn't exist
     const newCollection = await this.create({
       name,
-      site_id: siteId,
+      site_id: targetSiteId,
     });
 
     if (!newCollection) {
@@ -124,6 +157,13 @@ class FieldCollectionsService {
     }
 
     return newCollection;
+  }
+
+  /**
+   * Create a site-aware instance of this service
+   */
+  withSite(siteId: string): FieldCollectionsService {
+    return new FieldCollectionsService(this._supabase, siteId);
   }
 }
 
