@@ -1,3 +1,22 @@
+# [1.4.0](https://github.com/broadmountaindigital/supabase-cms-react/compare/v1.3.0...v1.4.0) (2025-06-20)
+
+
+### Features
+
+* add fieldName to TextInputProps ([ee792a8](https://github.com/broadmountaindigital/supabase-cms-react/commit/ee792a8a14aef5f14be7e899aea1b53810ccbac9))
+* add general rules for project structure and CSS handling ([0a9716e](https://github.com/broadmountaindigital/supabase-cms-react/commit/0a9716e0365f686894e94e768ea0673a8f53a7c4))
+* add getByFieldName method to retrieve content field by field name ([c189eef](https://github.com/broadmountaindigital/supabase-cms-react/commit/c189eefaec8a72f748fbb09ff0e5b8ebe2f9976f))
+* add SiteRoleIndicator component and useUserSiteRole hook for user role management ([a5bb48c](https://github.com/broadmountaindigital/supabase-cms-react/commit/a5bb48c7bd5b8bbd5f0496cea2b3a0621d4fa7c0))
+* bundle library component styles ([503f035](https://github.com/broadmountaindigital/supabase-cms-react/commit/503f035754e8f631ce61964399a7cba677c85399))
+* enhance MultilineEditor to fetch and save content dynamically ([37b8cbd](https://github.com/broadmountaindigital/supabase-cms-react/commit/37b8cbd2f7b0bd4a33d6689ceb60321f017f6e83))
+* enhance MultilineEditor with validation, conflict detection, and offline support features ([ea3e578](https://github.com/broadmountaindigital/supabase-cms-react/commit/ea3e578e40694769cdc4adb31b79cb84e61c8c23))
+* enhance save button and indicator layout in MultilineEditor for improved user experience ([27a6797](https://github.com/broadmountaindigital/supabase-cms-react/commit/27a679744b92048ddf958002bd7c37f8cfd15add))
+* implement content revision tracking system with database schema, service methods, and integration into content fields ([5c64f6d](https://github.com/broadmountaindigital/supabase-cms-react/commit/5c64f6db8a15fa85d06248092bdf9ee04549a84c))
+* integrate useUserSiteRole hook into Settings component for user role management ([1e46ba7](https://github.com/broadmountaindigital/supabase-cms-react/commit/1e46ba7aa79bacaab0f0d513b1b5c3717bf88a32))
+* introduce SkeletonLoader component and enhance MultilineEditor with debounced saving and loading indicators ([02d3896](https://github.com/broadmountaindigital/supabase-cms-react/commit/02d3896138ad5629ca908926b8766208e0082ca5))
+* simplify how saving works in the app ([dd208e3](https://github.com/broadmountaindigital/supabase-cms-react/commit/dd208e38f949f280d7f6dcdccafc30260e2c5c3b))
+* update pending state text in MultilineEditor from 'Saving...' to 'Editing...' ([6b4cd41](https://github.com/broadmountaindigital/supabase-cms-react/commit/6b4cd417d14bfffd1dd37a07444a374f5e640d05))
+
 # [1.3.0](https://github.com/broadmountaindigital/supabase-cms-react/compare/v1.2.0...v1.3.0) (2025-06-13)
 
 
