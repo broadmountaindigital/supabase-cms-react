@@ -30,8 +30,6 @@ export interface MultilineEditorProps
   rest?: React.TextareaHTMLAttributes<HTMLTextAreaElement>;
   /** Debounce delay in milliseconds for auto-saving (default: 1000ms) */
   debounceDelay?: number;
-  /** Whether to show saving indicators */
-  showSavingIndicator?: boolean;
   /** Custom loading component props */
   loadingProps?: {
     lines?: number;
@@ -64,7 +62,6 @@ export default function MultilineEditor(props: MultilineEditorProps) {
     maxLines,
     maxCharacterCount,
     debounceDelay = 1000,
-    showSavingIndicator = true,
     loadingProps = {},
   } = props;
 
@@ -80,7 +77,19 @@ export default function MultilineEditor(props: MultilineEditorProps) {
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isMountedRef = useRef(true);
 
+  // Use the hook with the ref and value
   useAutosizeTextArea(textAreaRef.current, value);
+
+  // Ensure textarea is properly sized when switching to edit mode
+  useEffect(() => {
+    if (isInEditMode && textAreaRef.current) {
+      // Force a re-calculation of the textarea size
+      const textarea = textAreaRef.current;
+      textarea.style.height = 'auto';
+      const scrollHeight = textarea.scrollHeight;
+      textarea.style.height = scrollHeight + 'px';
+    }
+  }, [isInEditMode, value]);
 
   // Simple save function
   const save = useCallback(async () => {
@@ -282,41 +291,38 @@ export default function MultilineEditor(props: MultilineEditorProps) {
   return (
     <>
       {isInEditMode ? (
-        <div className="bmscms:relative">
+        <span className={className + ' bmscms:relative'}>
           <textarea
             ref={textAreaRef}
             value={value}
             onChange={handleInput}
+            rows={1}
             className={[
-              className,
-              'bmscms:border-none bmscms:outline-none bmscms:bg-transparent bmscms:p-0 bmscms:m-0 bmscms:resize-none bmscms:w-full bmscms:overflow-hidden bmscms:box-border bmscms:block bmscms:text-inherit bmscms:font-inherit',
+              'bmscms:border-none bmscms:outline-none bmscms:transparent bmscms:p-0 bmscms:m-0 bmscms:resize-none bmscms:w-full bmscms:overflow-hidden bmscms:box-border bmscms:block bmscms:text-inherit bmscms:font-inherit bmscms:field-sizing-content',
             ]
               .filter(Boolean)
               .join(' ')}
             style={rest?.style}
             {...rest}
           />
-          {showSavingIndicator && (
-            <div className="bmscms:absolute bmscms:top-[-1.5rem] bmscms:right-0 bmscms:flex bmscms:flex-row bmscms:items-center bmscms:justify-end bmscms:flex-nowrap bmscms:w-full bmscms:gap-2 bmscms:z-10">
-              {renderSaveIndicator(saveState)}
-              {(() => {
-                const showSaveButton =
-                  value !== serverValue && saveState !== SaveState.Saving;
-                const saveButtonDisabled =
-                  saveState === SaveState.Saving ||
-                  saveState === SaveState.Saved;
-                return showSaveButton ? (
-                  <EditorButton
-                    onClick={handleSave}
-                    disabled={saveButtonDisabled}
-                  >
-                    Save
-                  </EditorButton>
-                ) : null;
-              })()}
-            </div>
-          )}
-        </div>
+          <div className="bmscms:absolute bmscms:top-[-1.5rem] bmscms:right-0 bmscms:flex bmscms:flex-row bmscms:items-center bmscms:justify-end bmscms:flex-nowrap bmscms:w-full bmscms:gap-2 bmscms:z-10">
+            {renderSaveIndicator(saveState)}
+            {(() => {
+              const showSaveButton =
+                value !== serverValue && saveState !== SaveState.Saving;
+              const saveButtonDisabled =
+                saveState === SaveState.Saving || saveState === SaveState.Saved;
+              return showSaveButton ? (
+                <EditorButton
+                  onClick={handleSave}
+                  disabled={saveButtonDisabled}
+                >
+                  Save
+                </EditorButton>
+              ) : null;
+            })()}
+          </div>
+        </span>
       ) : (
         <span
           className={[className, 'bmscms:whitespace-pre-wrap']
@@ -355,8 +361,8 @@ function renderSaveIndicator(saveState: SaveState) {
 
 function renderErrorMessage(error: string) {
   return (
-    <div className="bmscms:text-red-600 bmscms:text-sm bmscms:mt-2 bmscms:p-2 bmscms:bg-red-100 bmscms:rounded bmscms:border bmscms:border-red-200">
+    <span className="bmscms:text-red-600 bmscms:text-sm bmscms:mt-2 bmscms:p-2 bmscms:bg-red-100 bmscms:rounded bmscms:border bmscms:border-red-200">
       {error}
-    </div>
+    </span>
   );
 }

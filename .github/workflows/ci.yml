@@ -1,0 +1,43 @@
+# GitHub Actions workflow for CI (lint & build)
+
+name: 'CI'
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 'Checkout code'
+        uses: actions/checkout@v4
+
+      - name: 'Set up Node.js'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+          cache: 'npm'
+
+      - name: 'Install dependencies'
+        run: npm ci
+
+      - name: 'Run linting'
+        run: npm run lint
+
+      - name: 'Run type checking'
+        run: npm run build:types
+
+      - name: 'Build library'
+        run: npm run build:lib
+
+      - name: 'Build example'
+        run: npm run build:example
+
+      - name: 'Run full build'
+        run: npm run build

@@ -2,13 +2,17 @@ import { supabase } from '@/lib/utils/supabase';
 import type { ContentFieldRow } from '@/types/database';
 import type { TablesInsert, TablesUpdate } from '@/types/database/supabase';
 import { contentFieldRevisionsService } from './ContentFieldRevisions.service';
+import { fieldCollectionsService } from './FieldCollections.service';
 import type { ContentFieldRevision } from '@/types/RevisionTypes';
 
 class ContentFieldsService {
-  constructor(private readonly _supabase = supabase) {}
+  constructor(
+    readonly db = supabase,
+    readonly siteId?: string
+  ) {}
 
   /**
-   * Create a content field with optional revision tracking
+   * Create a content field with optional revision tracking and collection association
    */
   async createWithRevisions(
     contentField: TablesInsert<'content_fields'>,
@@ -16,10 +20,37 @@ class ContentFieldsService {
       enabled: boolean;
       createdBy?: string;
       metadata?: Record<string, unknown>;
+    },
+    collectionConfig?: {
+      collectionName?: string;
+      collectionId?: string;
     }
   ): Promise<ContentFieldRow | null> {
+    // Handle collection association
+    const finalContentField = { ...contentField };
+
+    if (collectionConfig) {
+      if (collectionConfig.collectionId) {
+        finalContentField.collection_id = collectionConfig.collectionId;
+      } else if (collectionConfig.collectionName) {
+        if (!this.siteId) {
+          throw new Error('Site ID is required for collection operations');
+        }
+        try {
+          const collection = await fieldCollectionsService.getOrCreate(
+            collectionConfig.collectionName,
+            this.siteId
+          );
+          finalContentField.collection_id = collection.id;
+        } catch (error) {
+          console.error('Error creating/getting collection:', error);
+          // Continue without collection association if it fails
+        }
+      }
+    }
+
     // Create the content field first
-    const createdField = await this.create(contentField);
+    const createdField = await this.create(finalContentField);
 
     if (!createdField || !revisionConfig?.enabled) {
       return createdField;
@@ -44,7 +75,7 @@ class ContentFieldsService {
   }
 
   /**
-   * Update a content field with optional revision tracking
+   * Update a content field with optional revision tracking and collection association
    */
   async updateWithRevisions(
     id: string,
@@ -53,20 +84,47 @@ class ContentFieldsService {
       enabled: boolean;
       createdBy?: string;
       metadata?: Record<string, unknown>;
+    },
+    collectionConfig?: {
+      collectionName?: string;
+      collectionId?: string;
     }
   ): Promise<ContentFieldRow | null> {
+    // Handle collection association
+    const finalUpdates = { ...updates };
+
+    if (collectionConfig) {
+      if (collectionConfig.collectionId) {
+        finalUpdates.collection_id = collectionConfig.collectionId;
+      } else if (collectionConfig.collectionName) {
+        if (!this.siteId) {
+          throw new Error('Site ID is required for collection operations');
+        }
+        try {
+          const collection = await fieldCollectionsService.getOrCreate(
+            collectionConfig.collectionName,
+            this.siteId
+          );
+          finalUpdates.collection_id = collection.id;
+        } catch (error) {
+          console.error('Error creating/getting collection:', error);
+          // Continue without collection association if it fails
+        }
+      }
+    }
+
     // Check if we need to create a revision before updating
     let shouldCreateRevision = false;
     let oldField: ContentFieldRow | null = null;
 
-    if (revisionConfig?.enabled && updates.field_value !== undefined) {
+    if (revisionConfig?.enabled && finalUpdates.field_value !== undefined) {
       oldField = await this.getById(id);
       shouldCreateRevision =
-        !!oldField && oldField.field_value !== updates.field_value;
+        !!oldField && oldField.field_value !== finalUpdates.field_value;
     }
 
     // Update the content field
-    const updatedField = await this.update(id, updates);
+    const updatedField = await this.update(id, finalUpdates);
 
     if (!updatedField || !shouldCreateRevision || !oldField) {
       return updatedField;
@@ -86,6 +144,40 @@ class ContentFieldsService {
     }
 
     return updatedField;
+  }
+
+  /**
+   * Get content fields by collection
+   */
+  async getByCollectionId(collectionId: string): Promise<ContentFieldRow[]> {
+    const { data, error } = await this.db
+      .from('content_fields')
+      .select('*')
+      .eq('collection_id', collectionId);
+    if (error) {
+      console.error('Error fetching content fields by collection id:', error);
+    }
+    return data ?? [];
+  }
+
+  /**
+   * Get content fields by collection name
+   */
+  async getByCollectionName(
+    collectionName: string
+  ): Promise<ContentFieldRow[]> {
+    if (!this.siteId) {
+      throw new Error('Site ID is required for collection operations');
+    }
+
+    const collection = await fieldCollectionsService.getByName(
+      collectionName,
+      this.siteId
+    );
+    if (!collection) {
+      return [];
+    }
+    return this.getByCollectionId(collection.id);
   }
 
   /**
@@ -113,9 +205,13 @@ class ContentFieldsService {
   }
 
   async getAll(): Promise<ContentFieldRow[]> {
-    const { data, error } = await this._supabase
-      .from('content_fields')
-      .select('*');
+    let query = this.db.from('content_fields').select('*');
+
+    if (this.siteId) {
+      query = query.eq('site_id', this.siteId);
+    }
+
+    const { data, error } = await query;
     if (error) {
       console.error('Error fetching content fields:', error);
     }
@@ -123,11 +219,13 @@ class ContentFieldsService {
   }
 
   async getById(id: string): Promise<ContentFieldRow | null> {
-    const { data, error } = await this._supabase
-      .from('content_fields')
-      .select('*')
-      .eq('id', id)
-      .single();
+    let query = this.db.from('content_fields').select('*').eq('id', id);
+
+    if (this.siteId) {
+      query = query.eq('site_id', this.siteId);
+    }
+
+    const { data, error } = await query.single();
     if (error) {
       console.error('Error fetching content field by id:', error);
     }
@@ -135,13 +233,18 @@ class ContentFieldsService {
   }
 
   async getByFieldName(fieldName: string): Promise<ContentFieldRow | null> {
-    const { data, error } = await this._supabase
+    let query = this.db
       .from('content_fields')
       .select('*')
-      .eq('field_name', fieldName)
-      .single();
+      .eq('field_name', fieldName);
+
+    if (this.siteId) {
+      query = query.eq('site_id', this.siteId);
+    }
+
+    const { data, error } = await query.single();
     if (error) {
-      console.error('Error fetching content field by id:', error);
+      console.error('Error fetching content field by field name:', error);
     }
     return data ?? null;
   }
@@ -149,9 +252,13 @@ class ContentFieldsService {
   async create(
     contentField: TablesInsert<'content_fields'>
   ): Promise<ContentFieldRow | null> {
-    const { data, error } = await this._supabase
+    const finalContentField = this.siteId
+      ? { ...contentField, site_id: this.siteId }
+      : contentField;
+
+    const { data, error } = await this.db
       .from('content_fields')
-      .insert(contentField)
+      .insert(finalContentField)
       .select()
       .single();
     if (error) {
@@ -164,12 +271,13 @@ class ContentFieldsService {
     id: string,
     updates: TablesUpdate<'content_fields'>
   ): Promise<ContentFieldRow | null> {
-    const { data, error } = await this._supabase
-      .from('content_fields')
-      .update(updates)
-      .eq('id', id)
-      .select()
-      .single();
+    let query = this.db.from('content_fields').update(updates).eq('id', id);
+
+    if (this.siteId) {
+      query = query.eq('site_id', this.siteId);
+    }
+
+    const { data, error } = await query.select().single();
     if (error) {
       console.error('Error updating content field:', error);
     }
@@ -177,14 +285,24 @@ class ContentFieldsService {
   }
 
   async delete(id: string): Promise<boolean> {
-    const { error } = await this._supabase
-      .from('content_fields')
-      .delete()
-      .eq('id', id);
+    let query = this.db.from('content_fields').delete().eq('id', id);
+
+    if (this.siteId) {
+      query = query.eq('site_id', this.siteId);
+    }
+
+    const { error } = await query;
     if (error) {
       console.error('Error deleting content field:', error);
     }
     return !error;
+  }
+
+  /**
+   * Create a site-aware instance of this service
+   */
+  withSite(siteId: string): ContentFieldsService {
+    return new ContentFieldsService(this.db, siteId);
   }
 }
 

@@ -3,6 +3,7 @@ import {
   MultilineEditor,
   SignoutButton,
   Settings,
+  Collection,
   useSupabaseCMS,
 } from '@broadmountain/supabase-cms-react';
 import { Link, Route, Routes } from 'react-router-dom';
@@ -47,7 +48,7 @@ function HomePage() {
           <SignoutButton />
         </div>
       </header>
-      <main>
+      <main className="space-y-6">
         <section className="p-4 border rounded-lg">
           <h2 className="text-xl font-semibold mb-2">Editable Content</h2>
           <div className="mb-4">
@@ -56,6 +57,26 @@ function HomePage() {
               rest={{ id: 'example-content' }}
             />
           </div>
+        </section>
+
+        <section className="p-4 border rounded-lg">
+          <h2 className="text-xl font-semibold mb-2">Collection Example</h2>
+          <p className="text-gray-600">
+            This is a collection of content fields. In edit mode, you can add,
+            remove, and edit items.
+          </p>
+          <Collection
+            collectionId="e3a5d0a4-bc29-4a65-919b-f678132202c9"
+            emptyStateMessage="No items in this demo collection. Add some items in edit mode!"
+            ListWrapperComponent={({ children }) => (
+              <div className="flex flex-col py-4">{children}</div>
+            )}
+            ListItemWrapperComponent={({ children }) => (
+              <div className="flex flex-row items-center py-2 hover:bg-black/20">
+                {children}
+              </div>
+            )}
+          />
         </section>
       </main>
     </div>

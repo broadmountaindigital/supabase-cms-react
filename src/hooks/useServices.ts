@@ -23,3 +23,8 @@ export function useProfilesService() {
   const { services } = useSupabaseCMS();
   return services.profiles;
 }
+
+export function useFieldCollectionsService() {
+  const { services } = useSupabaseCMS();
+  return services.fieldCollections;
+}

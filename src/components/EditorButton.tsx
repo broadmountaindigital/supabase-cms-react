@@ -18,8 +18,9 @@ export function EditorButton({
     <button
       type={type ?? 'button'}
       className={
-        className ??
-        'bmscms:bg-blue-600 bmscms:text-white bmscms:rounded bmscms:px-4 bmscms:py-1 bmscms:font-semibold bmscms:shadow bmscms:transition bmscms:cursor-pointer bmscms:disabled:opacity-50 bmscms:disabled:cursor-not-allowed'
+        (className ??
+          'bmscms:bg-blue-600 bmscms:text-white bmscms:rounded bmscms:px-4 bmscms:py-1 bmscms:font-semibold') +
+        ' bmscms:cursor-pointer bmscms:disabled:opacity-50 bmscms:disabled:cursor-not-allowed'
       }
       onClick={onClick}
       disabled={disabled}

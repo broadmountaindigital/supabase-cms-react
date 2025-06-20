@@ -158,6 +158,7 @@ export type Database = {
       };
       content_fields: {
         Row: {
+          collection_id: string | null;
           created_at: string;
           current_revision_id: string | null;
           field_name: string;
@@ -171,6 +172,7 @@ export type Database = {
           updated_at: string;
         };
         Insert: {
+          collection_id?: string | null;
           created_at?: string;
           current_revision_id?: string | null;
           field_name: string;
@@ -184,6 +186,7 @@ export type Database = {
           updated_at?: string;
         };
         Update: {
+          collection_id?: string | null;
           created_at?: string;
           current_revision_id?: string | null;
           field_name?: string;
@@ -197,6 +200,13 @@ export type Database = {
           updated_at?: string;
         };
         Relationships: [
+          {
+            foreignKeyName: 'content_fields_collection_id_fkey';
+            columns: ['collection_id'];
+            isOneToOne: false;
+            referencedRelation: 'field_collections';
+            referencedColumns: ['id'];
+          },
           {
             foreignKeyName: 'content_fields_current_revision_id_fkey';
             columns: ['current_revision_id'];
@@ -213,6 +223,38 @@ export type Database = {
           },
           {
             foreignKeyName: 'content_fields_site_id_fkey';
+            columns: ['site_id'];
+            isOneToOne: false;
+            referencedRelation: 'sites';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      field_collections: {
+        Row: {
+          created_at: string;
+          id: string;
+          name: string;
+          site_id: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          name: string;
+          site_id?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          name?: string;
+          site_id?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'field_collections_site_id_fkey';
             columns: ['site_id'];
             isOneToOne: false;
             referencedRelation: 'sites';
@@ -348,9 +390,14 @@ export type Database = {
         };
         Returns: string;
       };
+      create_user: {
+        Args: { email: string; password: string };
+        Returns: string;
+      };
       get_content_fields_for_page: {
         Args: { page_id: string };
         Returns: {
+          collection_id: string | null;
           created_at: string;
           current_revision_id: string | null;
           field_name: string;
