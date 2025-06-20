@@ -80,7 +80,19 @@ export default function MultilineEditor(props: MultilineEditorProps) {
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isMountedRef = useRef(true);
 
+  // Use the hook with the ref and value
   useAutosizeTextArea(textAreaRef.current, value);
+
+  // Ensure textarea is properly sized when switching to edit mode
+  useEffect(() => {
+    if (isInEditMode && textAreaRef.current) {
+      // Force a re-calculation of the textarea size
+      const textarea = textAreaRef.current;
+      textarea.style.height = 'auto';
+      const scrollHeight = textarea.scrollHeight;
+      textarea.style.height = scrollHeight + 'px';
+    }
+  }, [isInEditMode, value]);
 
   // Simple save function
   const save = useCallback(async () => {
@@ -287,9 +299,10 @@ export default function MultilineEditor(props: MultilineEditorProps) {
             ref={textAreaRef}
             value={value}
             onChange={handleInput}
+            rows={1}
             className={[
               className,
-              'bmscms:border-none bmscms:outline-none bmscms:bg-transparent bmscms:p-0 bmscms:m-0 bmscms:resize-none bmscms:w-full bmscms:overflow-hidden bmscms:box-border bmscms:block bmscms:text-inherit bmscms:font-inherit',
+              'bmscms:border-none bmscms:outline-none bmscms:bg-transparent bmscms:p-0 bmscms:m-0 bmscms:resize-none bmscms:w-full bmscms:overflow-hidden bmscms:box-border bmscms:block bmscms:text-inherit bmscms:font-inherit bmscms:field-sizing-content',
             ]
               .filter(Boolean)
               .join(' ')}
