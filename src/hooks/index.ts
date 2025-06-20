@@ -5,6 +5,7 @@ export {
   useSitesService,
   useSitePagesService,
   useProfilesService,
+  useFieldCollectionsService,
 } from './useServices';
 export { useDebouncedSave } from './useDebouncedSave';
 export { useValidation } from './useValidation';
