@@ -1,3 +1,20 @@
+# [1.5.0](https://github.com/broadmountaindigital/supabase-cms-react/compare/v1.4.0...v1.5.0) (2025-06-20)
+
+
+### Bug Fixes
+
+* anonymous class with private class members not allowed ([df4598d](https://github.com/broadmountaindigital/supabase-cms-react/commit/df4598d1e31c9d92927d8430d5ac876e3d46901e))
+* multiline editor sizing ([6c6abbb](https://github.com/broadmountaindigital/supabase-cms-react/commit/6c6abbbd32f660ecdddd95b99b9284d03d286f81))
+
+
+### Features
+
+* add Collection component and integrate into HomePage ([acc1493](https://github.com/broadmountaindigital/supabase-cms-react/commit/acc1493b80000f1a3e4c3207919ad3797b3b8284))
+* add field_collections table ([d586852](https://github.com/broadmountaindigital/supabase-cms-react/commit/d586852cb054abcbbb066d980b9dc77f77220e34))
+* export useFieldCollectionsService hook ([c7fad1c](https://github.com/broadmountaindigital/supabase-cms-react/commit/c7fad1ccbc463e94da63ef1b27b7dbb53228934f))
+* integrate field collections into content fields service ([393a631](https://github.com/broadmountaindigital/supabase-cms-react/commit/393a63153b19fddb34b41c9530158fce5b1aaa1a))
+* support configurable elements in Collection ([e3f23d6](https://github.com/broadmountaindigital/supabase-cms-react/commit/e3f23d69f0b9501acb0206f56d43da6bb625b418))
+
 # [1.4.0](https://github.com/broadmountaindigital/supabase-cms-react/compare/v1.3.0...v1.4.0) (2025-06-20)
 
 
