@@ -1,4 +1,3 @@
-import { type CSSProperties } from 'react';
 import type { SkeletonLoaderProps } from '../types/SkeletonLoaderTypes';
 
 /**
@@ -19,37 +18,20 @@ export function SkeletonLoader({
     return width;
   };
 
-  const skeletonStyles: CSSProperties = {
-    display: 'block',
-    backgroundColor: '#e2e8f0',
-    borderRadius: '4px',
-    animation: 'skeletonPulse 1.5s ease-in-out infinite',
-    ...style,
-  };
-
-  const containerStyles: CSSProperties = {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '0.5rem',
-  };
-
   return (
-    <>
-      <div className={className} style={containerStyles}>
-        {Array.from({ length: lines }, (_, index) => {
-          return (
-            <div
-              key={index}
-              style={{
-                ...skeletonStyles,
-                height: lineHeight,
-                width: getLineWidth(index),
-              }}
-            />
-          );
-        })}
-      </div>
-    </>
+    <div
+      className={[className, 'bmscms:flex bmscms:flex-col bmscms:gap-2']
+        .filter(Boolean)
+        .join(' ')}
+    >
+      {Array.from({ length: lines }, (_, index) => (
+        <div
+          key={index}
+          className="bmscms:block bmscms:bg-slate-200 bmscms:rounded bmscms:animate-pulse"
+          style={{ height: lineHeight, width: getLineWidth(index), ...style }}
+        />
+      ))}
+    </div>
   );
 }
 

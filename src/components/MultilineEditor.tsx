@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import type { TextInputProps } from '../types/TextInputProps';
-import type { SaveState } from '../types/MultilineEditorTypes';
+import { SaveState } from '../types/MultilineEditorTypes';
 import type {
   ValidationSchema,
   ConflictDetection,
@@ -14,6 +14,7 @@ import {
   useSupabaseCMS,
 } from '../hooks';
 import { SkeletonLoader } from './SkeletonLoader';
+import { EditorButton } from './EditorButton';
 
 /**
  * Props for the MultilineEditor component.
@@ -72,7 +73,7 @@ export default function MultilineEditor(props: MultilineEditorProps) {
   const [value, setValue] = useState(defaultValue);
   const [serverValue, setServerValue] = useState(defaultValue);
   const [isLoading, setIsLoading] = useState(true);
-  const [saveState, setSaveState] = useState<SaveState>('idle');
+  const [saveState, setSaveState] = useState<SaveState>(SaveState.Idle);
   const [error, setError] = useState<string | null>(null);
 
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
@@ -92,7 +93,7 @@ export default function MultilineEditor(props: MultilineEditorProps) {
       return;
     }
 
-    setSaveState('saving');
+    setSaveState(SaveState.Saving);
     setError(null);
 
     try {
@@ -119,13 +120,13 @@ export default function MultilineEditor(props: MultilineEditorProps) {
 
       if (savedField) {
         setServerValue(value);
-        setSaveState('saved');
+        setSaveState(SaveState.Saved);
         console.log('✅ Save successful');
 
         // Auto-hide saved indicator
         setTimeout(() => {
           if (isMountedRef.current) {
-            setSaveState('idle');
+            setSaveState(SaveState.Idle);
           }
         }, 2000);
       } else {
@@ -135,7 +136,7 @@ export default function MultilineEditor(props: MultilineEditorProps) {
       const errorMessage = e instanceof Error ? e.message : 'Save failed';
       console.error('❌ Save failed:', errorMessage);
       setError(errorMessage);
-      setSaveState('error');
+      setSaveState(SaveState.Error);
     }
   }, [value, serverValue, fieldId, fieldName, contentFieldsService]);
 
@@ -151,7 +152,7 @@ export default function MultilineEditor(props: MultilineEditorProps) {
     }
 
     // Set pending state
-    setSaveState('pending');
+    setSaveState(SaveState.Pending);
 
     // Set new timeout
     saveTimeoutRef.current = setTimeout(() => {
@@ -234,7 +235,7 @@ export default function MultilineEditor(props: MultilineEditorProps) {
   }
 
   async function handleSave() {
-    setSaveState('saving');
+    setSaveState(SaveState.Saving);
     setError(null);
     try {
       let savedField;
@@ -253,9 +254,9 @@ export default function MultilineEditor(props: MultilineEditorProps) {
       }
       if (savedField) {
         setServerValue(value);
-        setSaveState('saved');
+        setSaveState(SaveState.Saved);
         setTimeout(() => {
-          if (isMountedRef.current) setSaveState('idle');
+          if (isMountedRef.current) setSaveState(SaveState.Idle);
         }, 2000);
       } else {
         throw new Error('Save returned null');
@@ -263,24 +264,9 @@ export default function MultilineEditor(props: MultilineEditorProps) {
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : 'Save failed';
       setError(errorMessage);
-      setSaveState('error');
+      setSaveState(SaveState.Error);
     }
   }
-
-  const resetStyles: React.CSSProperties = {
-    border: 'none',
-    outline: 'none',
-    background: 'transparent',
-    padding: 0,
-    margin: 0,
-    resize: 'none',
-    font: 'inherit',
-    color: 'inherit',
-    width: '100%',
-    overflow: 'hidden',
-    boxSizing: 'border-box',
-    display: 'block',
-  };
 
   if (isLoading) {
     return (
@@ -296,56 +282,47 @@ export default function MultilineEditor(props: MultilineEditorProps) {
   return (
     <>
       {isInEditMode ? (
-        <div style={{ position: 'relative' }}>
+        <div className="bmscms:relative">
           <textarea
             ref={textAreaRef}
             value={value}
             onChange={handleInput}
-            className={className}
-            style={{ ...resetStyles, ...rest?.style }}
+            className={[
+              className,
+              'bmscms:border-none bmscms:outline-none bmscms:bg-transparent bmscms:p-0 bmscms:m-0 bmscms:resize-none bmscms:w-full bmscms:overflow-hidden bmscms:box-border bmscms:block bmscms:text-inherit bmscms:font-inherit',
+            ]
+              .filter(Boolean)
+              .join(' ')}
+            style={rest?.style}
             {...rest}
           />
           {showSavingIndicator && (
-            <div
-              style={{
-                position: 'absolute',
-                top: '-1.5rem',
-                right: 0,
-                display: 'flex',
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'flex-end',
-                flexWrap: 'nowrap',
-                width: '100%',
-                gap: '0.5rem',
-                zIndex: 10,
-              }}
-            >
+            <div className="bmscms:absolute bmscms:top-[-1.5rem] bmscms:right-0 bmscms:flex bmscms:flex-row bmscms:items-center bmscms:justify-end bmscms:flex-nowrap bmscms:w-full bmscms:gap-2 bmscms:z-10">
               {renderSaveIndicator(saveState)}
-              {value !== serverValue && saveState !== 'saving' && (
-                <button
-                  type="button"
-                  onClick={handleSave}
-                  disabled={saveState === 'saving'}
-                  style={{
-                    padding: '0.25rem 0.75rem',
-                    borderRadius: '9999px',
-                    background: '#2563eb',
-                    color: 'white',
-                    border: 'none',
-                    fontWeight: 500,
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-                    cursor: 'pointer',
-                  }}
-                >
-                  Save
-                </button>
-              )}
+              {(() => {
+                const showSaveButton =
+                  value !== serverValue && saveState !== SaveState.Saving;
+                const saveButtonDisabled =
+                  saveState === SaveState.Saving ||
+                  saveState === SaveState.Saved;
+                return showSaveButton ? (
+                  <EditorButton
+                    onClick={handleSave}
+                    disabled={saveButtonDisabled}
+                  >
+                    Save
+                  </EditorButton>
+                ) : null;
+              })()}
             </div>
           )}
         </div>
       ) : (
-        <span className={className} style={{ whiteSpace: 'pre-wrap' }}>
+        <span
+          className={[className, 'bmscms:whitespace-pre-wrap']
+            .filter(Boolean)
+            .join(' ')}
+        >
           {value}
         </span>
       )}
@@ -355,42 +332,31 @@ export default function MultilineEditor(props: MultilineEditorProps) {
 }
 
 function renderSaveIndicator(saveState: SaveState) {
-  if (saveState === 'idle') return null;
-
-  const style: React.CSSProperties = {
-    fontSize: '0.75rem',
-    fontWeight: '500',
-    padding: '0.25rem 0.5rem',
-    borderRadius: '0.25rem',
-  };
+  if (saveState === SaveState.Idle) return null;
 
   const stateConfig = {
-    pending: { ...style, backgroundColor: '#fef3c7', color: '#92400e' },
-    saving: { ...style, backgroundColor: '#dbeafe', color: '#1e40af' },
-    saved: { ...style, backgroundColor: '#d1fae5', color: '#059669' },
-    error: { ...style, backgroundColor: '#fee2e2', color: '#dc2626' },
+    [SaveState.Pending]:
+      'bmscms:text-xs bmscms:font-medium bmscms:px-2 bmscms:py-1 bmscms:rounded bmscms:bg-amber-100 bmscms:text-amber-800',
+    [SaveState.Saving]:
+      'bmscms:text-xs bmscms:font-medium bmscms:px-2 bmscms:py-1 bmscms:rounded bmscms:bg-blue-100 bmscms:text-blue-900',
+    [SaveState.Saved]:
+      'bmscms:text-xs bmscms:font-medium bmscms:px-2 bmscms:py-1 bmscms:rounded bmscms:bg-emerald-100 bmscms:text-emerald-600',
+    [SaveState.Error]:
+      'bmscms:text-xs bmscms:font-medium bmscms:px-2 bmscms:py-1 bmscms:rounded bmscms:bg-red-100 bmscms:text-red-600',
   };
-
   const stateText = {
-    pending: 'Editing...',
-    saving: 'Saving...',
-    saved: 'Saved',
-    error: 'Error',
+    [SaveState.Pending]: 'Editing...',
+    [SaveState.Saving]: 'Saving...',
+    [SaveState.Saved]: 'Saved',
+    [SaveState.Error]: 'Error',
   };
-
-  return <span style={stateConfig[saveState]}>{stateText[saveState]}</span>;
+  return <span className={stateConfig[saveState]}>{stateText[saveState]}</span>;
 }
 
 function renderErrorMessage(error: string) {
-  const errorStyle: React.CSSProperties = {
-    color: '#dc2626',
-    fontSize: '0.8rem',
-    marginTop: '0.5rem',
-    padding: '0.5rem',
-    backgroundColor: '#fee2e2',
-    borderRadius: '0.25rem',
-    border: '1px solid #fecaca',
-  };
-
-  return <div style={errorStyle}>{error}</div>;
+  return (
+    <div className="bmscms:text-red-600 bmscms:text-sm bmscms:mt-2 bmscms:p-2 bmscms:bg-red-100 bmscms:rounded bmscms:border bmscms:border-red-200">
+      {error}
+    </div>
+  );
 }

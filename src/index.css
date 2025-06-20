@@ -1,4 +1,4 @@
-@import 'tailwindcss' prefix(bm_scms);
+@import 'tailwindcss' prefix(bmscms);
 
 @keyframes skeletonPulse {
   0%,

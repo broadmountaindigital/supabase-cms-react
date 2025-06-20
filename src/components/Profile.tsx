@@ -1,4 +1,5 @@
 import { useSupabaseCMS } from '../hooks/useSupabaseCMS';
+import EditorButton from './EditorButton';
 
 /**
  * Props for the Profile component.
@@ -30,7 +31,9 @@ const Profile: React.FC<ProfileProps> = ({ onSignOut, classNames }) => {
   }
 
   if (loading) {
-    return <div className="text-center p-4">Loading profile...</div>;
+    return (
+      <div className="bmscms:text-center bmscms:p-4">Loading profile...</div>
+    );
   }
 
   if (!user) {
@@ -40,14 +43,29 @@ const Profile: React.FC<ProfileProps> = ({ onSignOut, classNames }) => {
   }
 
   return (
-    <div className={classNames?.containerClassName}>
-      <h2 className={classNames?.h2ClassName}>Profile</h2>
-      <p className={classNames?.textClassName}>
+    <div
+      className={
+        classNames?.containerClassName ??
+        'bmscms:rounded bmscms:shadow bmscms:p-6 bmscms:max-w-md bmscms:mx-auto'
+      }
+    >
+      <h2
+        className={
+          classNames?.h2ClassName ??
+          'bmscms:text-2xl bmscms:font-bold bmscms:mb-4'
+        }
+      >
+        Profile
+      </h2>
+      <p className={classNames?.textClassName ?? 'bmscms:mb-4'}>
         Email: <span>{user.email}</span>
       </p>
-      <button onClick={handleSignOut} className={classNames?.buttonClassName}>
+      <EditorButton
+        onClick={handleSignOut}
+        className={classNames?.buttonClassName}
+      >
         Sign Out
-      </button>
+      </EditorButton>
     </div>
   );
 };

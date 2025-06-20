@@ -1,7 +1,7 @@
 import {
   Login,
   MultilineEditor,
-  Profile,
+  SignoutButton,
   Settings,
   useSupabaseCMS,
 } from '@broadmountain/supabase-cms-react';
@@ -19,10 +19,10 @@ function HomePage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-base-200 flex items-center justify-center">
+      <div className="min-h-screen bg-base-200 flex flex-col items-center justify-center gap-4">
+        <h1 className="card-title">Welcome to the Supabase CMS Demo</h1>
         <div className="card w-96 bg-base-100 shadow-xl">
           <div className="card-body">
-            <h1 className="card-title">Welcome to the Supabase CMS Demo</h1>
             <Login />
             <p className="mt-4 text-center">
               Need an account?{' '}
@@ -44,7 +44,7 @@ function HomePage() {
         <h1 className="text-2xl font-bold">Supabase CMS Demo</h1>
         <div className="flex items-center gap-4">
           <Settings />
-          <Profile />
+          <SignoutButton />
         </div>
       </header>
       <main>

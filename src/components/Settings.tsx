@@ -1,5 +1,6 @@
 import { useSupabaseCMS } from '../hooks/useSupabaseCMS';
 import { useUserSiteRole } from '../hooks/useUserSiteRole';
+import EditorButton from './EditorButton';
 
 /**
  * Props for the Settings component.
@@ -24,13 +25,18 @@ export default function Settings({ classNames }: SettingsProps) {
   console.log('user role', role);
 
   return (
-    <div className={classNames?.containerClassName ?? ''}>
-      <button
-        className={classNames?.buttonClassName ?? ''}
+    <div
+      className={
+        classNames?.containerClassName ??
+        'bmscms:p-2 bmscms:rounded bmscms:shadow'
+      }
+    >
+      <EditorButton
+        className={classNames?.buttonClassName}
         onClick={toggleEditMode}
       >
         {isInEditMode ? 'Close' : 'Edit'}
-      </button>
+      </EditorButton>
     </div>
   );
 }
