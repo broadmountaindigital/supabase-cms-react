@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect, type PropsWithChildren } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import type { User, AuthError } from '@supabase/supabase-js';
 import type { Database } from '../types/database/supabase';
@@ -8,15 +8,13 @@ import { CmsContext } from './CmsContext';
 /**
  * Props for the SupabaseCMSProvider.
  */
-export interface SupabaseCMSProviderProps {
+export interface SupabaseCMSProviderProps extends PropsWithChildren {
   /** The unique identifier for the site you want to manage. */
   siteId: string;
   /** Your Supabase project URL. */
   supabaseUrl: string;
   /** Your Supabase project's anonymous public key. */
   supabaseAnonKey: string;
-  /** The child components to render. */
-  children: React.ReactNode;
 }
 
 /**

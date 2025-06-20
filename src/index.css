@@ -1,1 +1,11 @@
-@import 'tailwindcss';
+@import 'tailwindcss' prefix(bmscms);
+
+@keyframes skeletonPulse {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}

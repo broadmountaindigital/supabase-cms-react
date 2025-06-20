@@ -14,7 +14,7 @@ npm install @broadmountain/supabase-cms-react @supabase/supabase-js react react-
 
 The library requires your Supabase project credentials. Create a `.env` file in the root of your project and add the following variables. You can find these in your Supabase project's "Project Settings" > "API" section.
 
-```
+```bash
 VITE_SUPABASE_URL="YOUR_SUPABASE_URL"
 VITE_SUPABASE_ANON_KEY="YOUR_SUPABASE_ANON_KEY"
 ```
@@ -65,7 +65,7 @@ import '@broadmountain/supabase-cms-react/dist/style.css';
 
 ### Custom Styling
 
-While the bundled stylesheet provides a great starting point, you can also apply your own custom styles. All components accept a `classNames` prop, which allows you to pass in your own CSS classes for nested elements. This gives you granular control over the look and feel, enabling you to integrate with any styling solution, such as Tailwind CSS, CSS Modules, or vanilla CSS.
+While the bundled stylesheet provides a minimal starting point, you can also apply your own custom styles. All components accept a `classNames` prop, which allows you to pass in your own CSS classes for nested elements. This gives you granular control over the look and feel, enabling you to integrate with any styling solution, such as Tailwind CSS, CSS Modules, or vanilla CSS.
 
 See the documentation for each component for a complete list of available `classNames`.
 

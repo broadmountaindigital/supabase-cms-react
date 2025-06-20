@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, type FC } from 'react';
 import { useSupabaseCMS } from '../hooks/useSupabaseCMS';
 import type { AuthError, User } from '@supabase/supabase-js';
+import EditorButton from './EditorButton';
 
 /**
  * Props for the Signup component.
@@ -26,7 +27,7 @@ export interface SignupProps {
  * A component that renders a signup form.
  * Handles new user registration via email and password.
  */
-const Signup: React.FC<SignupProps> = ({
+const Signup: FC<SignupProps> = ({
   onSignupSuccess,
   onSignupError,
   classNames,
@@ -58,15 +59,26 @@ const Signup: React.FC<SignupProps> = ({
   }
 
   return (
-    <form onSubmit={handleSubmit} className={classNames?.formClassName ?? ''}>
-      <h2 className="text-2xl font-bold mb-4">Sign Up</h2>
+    <form
+      onSubmit={handleSubmit}
+      className={
+        classNames?.formClassName ??
+        'bmscms:flex bmscms:flex-col bmscms:gap-4 bmscms:w-full bmscms:max-w-sm bmscms:mx-auto bmscms:p-6  bmscms:rounded bmscms:shadow'
+      }
+    >
+      <h2 className="bmscms:text-2xl bmscms:font-bold bmscms:mb-4 bmscms:text-center">
+        Sign Up
+      </h2>
       <input
         type="email"
         placeholder="Email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         required
-        className={classNames?.inputClassName ?? 'p-2 border rounded mb-4'}
+        className={
+          classNames?.inputClassName ??
+          'bmscms:p-2 bmscms:border bmscms:rounded bmscms:mb-2'
+        }
       />
       <input
         type="password"
@@ -74,17 +86,29 @@ const Signup: React.FC<SignupProps> = ({
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         required
-        className={classNames?.inputClassName ?? 'p-2 border rounded mb-4'}
+        className={
+          classNames?.inputClassName ??
+          'bmscms:p-2 bmscms:border bmscms:rounded bmscms:mb-4'
+        }
       />
-      <button
+      <EditorButton
         type="submit"
         disabled={loading}
-        className={classNames?.buttonClassName ?? 'btn btn-primary w-full'}
+        className={
+          classNames?.buttonClassName ??
+          'bmscms:bg-blue-600 bmscms:text-white bmscms:rounded bmscms:py-2 bmscms:font-semibold bmscms:shadow bmscms:transition bmscms:disabled:opacity-50'
+        }
       >
         {loading ? 'Signing up...' : 'Sign Up'}
-      </button>
+      </EditorButton>
       {error && (
-        <div className={classNames?.errorClassName ?? ''}>{error.message}</div>
+        <div
+          className={
+            classNames?.errorClassName ?? 'bmscms:text-red-600 bmscms:mt-2'
+          }
+        >
+          {error.message}
+        </div>
       )}
     </form>
   );
