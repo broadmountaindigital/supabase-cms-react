@@ -1,3 +1,10 @@
+# [1.7.0](https://github.com/broadmountaindigital/supabase-cms-react/compare/v1.6.0...v1.7.0) (2025-06-21)
+
+
+### Features
+
+* support className customization on editor components ([600e277](https://github.com/broadmountaindigital/supabase-cms-react/commit/600e27724ed6a274586e725ebbba50a4474e04f2))
+
 # [1.6.0](https://github.com/broadmountaindigital/supabase-cms-react/compare/v1.5.0...v1.6.0) (2025-06-21)
 
 
