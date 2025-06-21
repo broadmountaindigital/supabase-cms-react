@@ -12,10 +12,12 @@ class PendingChangesService {
   private callbacks: PendingChangesCallbacks;
   private autoSaveTimeout: NodeJS.Timeout | null = null;
   private isSaving = false;
+  private contentFieldsService: typeof contentFieldsService;
 
   constructor(
     config: PendingChangesConfig = {},
-    callbacks: PendingChangesCallbacks = {}
+    callbacks: PendingChangesCallbacks = {},
+    contentFieldsServiceInstance?: typeof contentFieldsService
   ) {
     this.config = {
       autoSave: false,
@@ -25,6 +27,8 @@ class PendingChangesService {
       ...config,
     };
     this.callbacks = callbacks;
+    this.contentFieldsService =
+      contentFieldsServiceInstance || contentFieldsService;
   }
 
   /**
@@ -282,7 +286,7 @@ class PendingChangesService {
    */
   private async saveChange(change: PendingChange): Promise<void> {
     if (change.isNewField) {
-      const savedField = await contentFieldsService.create({
+      const savedField = await this.contentFieldsService.create({
         field_name: change.fieldName,
         field_value: change.newValue,
       });
@@ -299,9 +303,12 @@ class PendingChangesService {
       this.changes.delete(oldChangeId);
       this.changes.set(change.id, change);
     } else {
-      const savedField = await contentFieldsService.update(change.fieldId!, {
-        field_value: change.newValue,
-      });
+      const savedField = await this.contentFieldsService.update(
+        change.fieldId!,
+        {
+          field_value: change.newValue,
+        }
+      );
       if (!savedField) {
         throw new Error('Failed to update field');
       }
@@ -333,3 +340,5 @@ class PendingChangesService {
 
 // Create a singleton instance
 export const pendingChangesService = new PendingChangesService();
+
+export { PendingChangesService };

@@ -1,5 +1,13 @@
-import React, { createContext, useEffect, useState, useCallback } from 'react';
-import { pendingChangesService } from '../lib/services/PendingChanges.service';
+import React, {
+  createContext,
+  useEffect,
+  useState,
+  useCallback,
+  useMemo,
+} from 'react';
+import { PendingChangesService } from '../lib/services/PendingChanges.service';
+import { contentFieldsService } from '../lib/services/ContentFields.service';
+import { useSiteContext } from './useSiteContext';
 import type {
   PendingChange,
   PendingChangesConfig,
@@ -46,6 +54,7 @@ const PendingChangesContext = createContext<
 export const PendingChangesProvider: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
+  const { siteId } = useSiteContext();
   const [changes, setChanges] = useState<PendingChange[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaveResult, setLastSaveResult] = useState<SaveResult | null>(null);
@@ -55,6 +64,15 @@ export const PendingChangesProvider: React.FC<{
       (fieldName: string, fieldId: string | null, newValue: string) => void
     >
   >(new Map());
+
+  // Create site-aware service instance
+  const pendingChangesService = useMemo(() => {
+    const siteAwareContentFieldsService = siteId
+      ? contentFieldsService.withSite(siteId)
+      : contentFieldsService;
+
+    return new PendingChangesService({}, {}, siteAwareContentFieldsService);
+  }, [siteId]);
 
   // Subscribe to service changes
   useEffect(() => {
@@ -89,7 +107,7 @@ export const PendingChangesProvider: React.FC<{
     return () => {
       pendingChangesService.updateCallbacks({});
     };
-  }, [fieldCallbacks]);
+  }, [fieldCallbacks, pendingChangesService]);
 
   const onFieldSaved = useCallback(
     (
@@ -121,11 +139,11 @@ export const PendingChangesProvider: React.FC<{
     } finally {
       setIsSaving(false);
     }
-  }, []);
+  }, [pendingChangesService]);
 
   const clearAll = useCallback(() => {
     pendingChangesService.clearAll();
-  }, []);
+  }, [pendingChangesService]);
 
   const retryFailedChanges = useCallback(async (): Promise<SaveResult> => {
     setIsSaving(true);
@@ -136,7 +154,7 @@ export const PendingChangesProvider: React.FC<{
     } finally {
       setIsSaving(false);
     }
-  }, []);
+  }, [pendingChangesService]);
 
   const addChange = useCallback(
     (
@@ -152,25 +170,28 @@ export const PendingChangesProvider: React.FC<{
         originalValue
       );
     },
-    []
+    [pendingChangesService]
   );
 
   const removeChange = useCallback(
     (fieldName: string, fieldId: string | null) => {
       pendingChangesService.removeChange(fieldName, fieldId);
     },
-    []
+    [pendingChangesService]
   );
 
-  const getChange = useCallback((fieldName: string, fieldId: string | null) => {
-    return pendingChangesService.getChange(fieldName, fieldId);
-  }, []);
+  const getChange = useCallback(
+    (fieldName: string, fieldId: string | null) => {
+      return pendingChangesService.getChange(fieldName, fieldId);
+    },
+    [pendingChangesService]
+  );
 
   const updateConfig = useCallback(
     (newConfig: Partial<PendingChangesConfig>) => {
       pendingChangesService.updateConfig(newConfig);
     },
-    []
+    [pendingChangesService]
   );
 
   const value: PendingChangesContextValue = {

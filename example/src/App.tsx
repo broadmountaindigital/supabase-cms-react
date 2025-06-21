@@ -70,6 +70,12 @@ function HomePage() {
               rest={{ id: 'example-content-3' }}
             />
           </div>
+          <div className="mb-4">
+            <MultilineEditor
+              fieldName="fourth_editable_field"
+              rest={{ id: 'example-content-4' }}
+            />
+          </div>
         </section>
 
         <section className="p-4 border rounded-lg">

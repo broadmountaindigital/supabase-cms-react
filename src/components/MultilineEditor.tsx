@@ -13,7 +13,6 @@ import {
   useSupabaseCMS,
 } from '../hooks';
 import { usePendingChanges } from '../hooks/usePendingChanges';
-import { SkeletonLoader } from './SkeletonLoader';
 
 /**
  * Props for the MultilineEditor component.
@@ -61,7 +60,6 @@ export default function MultilineEditor(props: MultilineEditorProps) {
     rest,
     maxLines,
     maxCharacterCount,
-    loadingProps = {},
     showSaveIndicator = true,
   } = props;
 
@@ -225,14 +223,7 @@ export default function MultilineEditor(props: MultilineEditorProps) {
   const hasPendingChanges = value !== serverValue;
 
   if (isLoading) {
-    return (
-      <SkeletonLoader
-        className={className}
-        lines={loadingProps.lines || 1}
-        lineHeight={loadingProps.lineHeight || '1.2em'}
-        width={loadingProps.width || '100%'}
-      />
-    );
+    return null;
   }
 
   return (
