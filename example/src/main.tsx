@@ -1,7 +1,10 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
-import { SupabaseCMSProvider } from '@broadmountain/supabase-cms-react';
+import {
+  SupabaseCMSProvider,
+  PendingChangesProvider,
+} from '@broadmountain/supabase-cms-react';
 import App from './App.tsx';
 import './index.css';
 
@@ -29,7 +32,9 @@ createRoot(document.getElementById('root')!).render(
         supabaseAnonKey={supabaseAnonKey}
         siteId="58ee3f3c-c843-4351-89e7-7e75f8aa3bef"
       >
-        <App />
+        <PendingChangesProvider>
+          <App />
+        </PendingChangesProvider>
       </SupabaseCMSProvider>
     </BrowserRouter>
   </StrictMode>

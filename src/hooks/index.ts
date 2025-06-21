@@ -11,3 +11,4 @@ export { useDebouncedSave } from './useDebouncedSave';
 export { useValidation } from './useValidation';
 export { useConflictDetection } from './useConflictDetection';
 export { useOfflineSupport } from './useOfflineSupport';
+export { usePendingChanges } from './usePendingChanges';

@@ -4,6 +4,7 @@ import {
   SignoutButton,
   Settings,
   Collection,
+  GlobalSaveButton,
   useSupabaseCMS,
 } from '@broadmountain/supabase-cms-react';
 import { Link, Route, Routes } from 'react-router-dom';
@@ -57,6 +58,18 @@ function HomePage() {
               rest={{ id: 'example-content' }}
             />
           </div>
+          <div className="mb-4">
+            <MultilineEditor
+              fieldName="another_editable_field"
+              rest={{ id: 'example-content-2' }}
+            />
+          </div>
+          <div className="mb-4">
+            <MultilineEditor
+              fieldName="third_editable_field"
+              rest={{ id: 'example-content-3' }}
+            />
+          </div>
         </section>
 
         <section className="p-4 border rounded-lg">
@@ -79,6 +92,16 @@ function HomePage() {
           />
         </section>
       </main>
+
+      {/* Global Save Button - appears when there are pending changes */}
+      <GlobalSaveButton
+        onSaveSuccess={(result) => {
+          console.log('✅ Save successful:', result);
+        }}
+        onSaveError={(result) => {
+          console.error('❌ Save failed:', result);
+        }}
+      />
     </div>
   );
 }

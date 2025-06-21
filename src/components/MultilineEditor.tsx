@@ -1,6 +1,5 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import type { TextInputProps } from '../types/TextInputProps';
-import { SaveState } from '../types/MultilineEditorTypes';
 import type {
   ValidationSchema,
   ConflictDetection,
@@ -13,8 +12,8 @@ import {
   useContentFieldsService,
   useSupabaseCMS,
 } from '../hooks';
+import { usePendingChanges } from '../hooks/usePendingChanges';
 import { SkeletonLoader } from './SkeletonLoader';
-import { EditorButton } from './EditorButton';
 
 /**
  * Props for the MultilineEditor component.
@@ -28,8 +27,6 @@ export interface MultilineEditorProps
   defaultValue?: string;
   /** Optional attributes to pass to the underlying textarea element. */
   rest?: React.TextareaHTMLAttributes<HTMLTextAreaElement>;
-  /** Debounce delay in milliseconds for auto-saving (default: 1000ms) */
-  debounceDelay?: number;
   /** Custom loading component props */
   loadingProps?: {
     lines?: number;
@@ -44,14 +41,17 @@ export interface MultilineEditorProps
   offlineConfig?: OfflineConfig;
   /** Default conflict resolution strategy */
   conflictResolutionStrategy?: ConflictResolutionStrategy;
+  /** Whether to show individual save indicators */
+  showSaveIndicator?: boolean;
 }
 
 /**
- * A simplified multiline text editor component with debounced saving.
+ * A simplified multiline text editor component that integrates with the global pending changes system.
  */
 export default function MultilineEditor(props: MultilineEditorProps) {
   const { isInEditMode } = useSupabaseCMS();
   const contentFieldsService = useContentFieldsService();
+  const { addChange, removeChange, onFieldSaved } = usePendingChanges();
 
   const {
     fieldName,
@@ -61,8 +61,8 @@ export default function MultilineEditor(props: MultilineEditorProps) {
     rest,
     maxLines,
     maxCharacterCount,
-    debounceDelay = 1000,
     loadingProps = {},
+    showSaveIndicator = true,
   } = props;
 
   // State management
@@ -70,15 +70,60 @@ export default function MultilineEditor(props: MultilineEditorProps) {
   const [value, setValue] = useState(defaultValue);
   const [serverValue, setServerValue] = useState(defaultValue);
   const [isLoading, setIsLoading] = useState(true);
-  const [saveState, setSaveState] = useState<SaveState>(SaveState.Idle);
   const [error, setError] = useState<string | null>(null);
 
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
-  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isMountedRef = useRef(true);
 
   // Use the hook with the ref and value
   useAutosizeTextArea(textAreaRef.current, value);
+
+  // Register field-specific save callback
+  useEffect(() => {
+    const cleanup = onFieldSaved((savedFieldName, savedFieldId, newValue) => {
+      // Only update if this is our field
+      if (savedFieldName === fieldName) {
+        console.log(
+          '[MultilineEditor] Save notification for',
+          fieldName,
+          'id:',
+          savedFieldId,
+          'newValue:',
+          newValue
+        );
+
+        // If this was a new field (our fieldId was null but we got a new ID), update our fieldId
+        if (fieldId === null && savedFieldId !== null) {
+          console.log(
+            '[MultilineEditor] Updating fieldId from null to:',
+            savedFieldId
+          );
+          setFieldId(savedFieldId);
+        }
+
+        setServerValue(newValue);
+        // If we're not in edit mode, also update the display value
+        if (!isInEditMode) {
+          setValue(newValue);
+        }
+      }
+    });
+
+    return cleanup;
+  }, [fieldName, fieldId, isInEditMode, onFieldSaved]);
+
+  useEffect(() => {
+    console.log(
+      '[MultilineEditor]',
+      fieldName,
+      'fieldId:',
+      fieldId,
+      'value:',
+      value,
+      'serverValue:',
+      serverValue
+    );
+  }, [fieldName, fieldId, value, serverValue]);
 
   // Ensure textarea is properly sized when switching to edit mode
   useEffect(() => {
@@ -91,89 +136,25 @@ export default function MultilineEditor(props: MultilineEditorProps) {
     }
   }, [isInEditMode, value]);
 
-  // Simple save function
-  const save = useCallback(async () => {
-    if (!isMountedRef.current) return;
-
-    console.log('💾 Starting save...', { value, serverValue, fieldId });
-
-    if (value === serverValue) {
-      console.log('❌ No changes to save');
-      return;
-    }
-
-    setSaveState(SaveState.Saving);
-    setError(null);
-
-    try {
-      let savedField;
-
-      if (fieldId) {
-        // Update existing field
-        console.log('📝 Updating field:', fieldId);
-        savedField = await contentFieldsService.update(fieldId, {
-          field_value: value,
-        });
-      } else {
-        // Create new field
-        console.log('➕ Creating new field:', fieldName);
-        savedField = await contentFieldsService.create({
-          field_name: fieldName,
-          field_value: value,
-        });
-
-        if (savedField) {
-          setFieldId(savedField.id);
-        }
-      }
-
-      if (savedField) {
-        setServerValue(value);
-        setSaveState(SaveState.Saved);
-        console.log('✅ Save successful');
-
-        // Auto-hide saved indicator
-        setTimeout(() => {
-          if (isMountedRef.current) {
-            setSaveState(SaveState.Idle);
-          }
-        }, 2000);
-      } else {
-        throw new Error('Save returned null');
-      }
-    } catch (e) {
-      const errorMessage = e instanceof Error ? e.message : 'Save failed';
-      console.error('❌ Save failed:', errorMessage);
-      setError(errorMessage);
-      setSaveState(SaveState.Error);
-    }
-  }, [value, serverValue, fieldId, fieldName, contentFieldsService]);
-
-  // Debounced save effect
+  // Update pending changes when value changes
   useEffect(() => {
-    if (!isInEditMode || value === serverValue) {
-      return;
+    if (value !== serverValue) {
+      // Add or update pending change
+      addChange(fieldName, fieldId, value, serverValue);
+    } else {
+      // Remove pending change if value matches server value
+      removeChange(fieldName, fieldId);
     }
+  }, [value, serverValue, fieldName, fieldId, addChange, removeChange]);
 
-    // Clear existing timeout
-    if (saveTimeoutRef.current) {
-      clearTimeout(saveTimeoutRef.current);
+  // Update pending change registration when fieldId changes (e.g., after new field creation)
+  useEffect(() => {
+    if (value !== serverValue && fieldId !== null) {
+      // Re-register the pending change with the new fieldId
+      addChange(fieldName, fieldId, value, serverValue);
     }
-
-    // Set pending state
-    setSaveState(SaveState.Pending);
-
-    // Set new timeout
-    saveTimeoutRef.current = setTimeout(() => {
-      save();
-    }, debounceDelay);
-
-    return () => {
-      if (saveTimeoutRef.current) {
-        clearTimeout(saveTimeoutRef.current);
-      }
-    };
-  }, [value, serverValue, isInEditMode, debounceDelay, save]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fieldId]); // Only depend on fieldId changes
 
   // Load initial content
   useEffect(() => {
@@ -216,9 +197,6 @@ export default function MultilineEditor(props: MultilineEditorProps) {
   useEffect(() => {
     return () => {
       isMountedRef.current = false;
-      if (saveTimeoutRef.current) {
-        clearTimeout(saveTimeoutRef.current);
-      }
     };
   }, []);
 
@@ -243,39 +221,8 @@ export default function MultilineEditor(props: MultilineEditorProps) {
     }
   }
 
-  async function handleSave() {
-    setSaveState(SaveState.Saving);
-    setError(null);
-    try {
-      let savedField;
-      if (fieldId) {
-        savedField = await contentFieldsService.update(fieldId, {
-          field_value: value,
-        });
-      } else {
-        savedField = await contentFieldsService.create({
-          field_name: fieldName,
-          field_value: value,
-        });
-        if (savedField) {
-          setFieldId(savedField.id);
-        }
-      }
-      if (savedField) {
-        setServerValue(value);
-        setSaveState(SaveState.Saved);
-        setTimeout(() => {
-          if (isMountedRef.current) setSaveState(SaveState.Idle);
-        }, 2000);
-      } else {
-        throw new Error('Save returned null');
-      }
-    } catch (e) {
-      const errorMessage = e instanceof Error ? e.message : 'Save failed';
-      setError(errorMessage);
-      setSaveState(SaveState.Error);
-    }
-  }
+  // Get the current pending change for this field
+  const hasPendingChanges = value !== serverValue;
 
   if (isLoading) {
     return (
@@ -305,58 +252,27 @@ export default function MultilineEditor(props: MultilineEditorProps) {
             style={rest?.style}
             {...rest}
           />
-          <div className="bmscms:absolute bmscms:top-[-1.5rem] bmscms:right-0 bmscms:flex bmscms:flex-row bmscms:items-center bmscms:justify-end bmscms:flex-nowrap bmscms:w-full bmscms:gap-2 bmscms:z-10">
-            {renderSaveIndicator(saveState)}
-            {(() => {
-              const showSaveButton =
-                value !== serverValue && saveState !== SaveState.Saving;
-              const saveButtonDisabled =
-                saveState === SaveState.Saving || saveState === SaveState.Saved;
-              return showSaveButton ? (
-                <EditorButton
-                  onClick={handleSave}
-                  disabled={saveButtonDisabled}
-                >
-                  Save
-                </EditorButton>
-              ) : null;
-            })()}
-          </div>
         </span>
       ) : (
         <span
-          className={[className, 'bmscms:whitespace-pre-wrap']
-            .filter(Boolean)
-            .join(' ')}
+          className={[className, 'bmscms:relative'].filter(Boolean).join(' ')}
         >
-          {value}
+          <span className="bmscms:whitespace-pre-wrap">{value}</span>
         </span>
       )}
+
+      {/* Pending indicator - shows regardless of edit mode */}
+      {showSaveIndicator && hasPendingChanges && (
+        <div className="bmscms:absolute bmscms:top-[-1.5rem] bmscms:right-0 bmscms:flex bmscms:flex-row bmscms:items-center bmscms:justify-end bmscms:flex-nowrap bmscms:w-full bmscms:gap-2 bmscms:z-10">
+          <span className="bmscms:text-xs bmscms:font-medium bmscms:px-2 bmscms:py-1 bmscms:rounded bmscms:bg-amber-100 bmscms:text-amber-800">
+            Pending
+          </span>
+        </div>
+      )}
+
       {error && renderErrorMessage(error)}
     </>
   );
-}
-
-function renderSaveIndicator(saveState: SaveState) {
-  if (saveState === SaveState.Idle) return null;
-
-  const stateConfig = {
-    [SaveState.Pending]:
-      'bmscms:text-xs bmscms:font-medium bmscms:px-2 bmscms:py-1 bmscms:rounded bmscms:bg-amber-100 bmscms:text-amber-800',
-    [SaveState.Saving]:
-      'bmscms:text-xs bmscms:font-medium bmscms:px-2 bmscms:py-1 bmscms:rounded bmscms:bg-blue-100 bmscms:text-blue-900',
-    [SaveState.Saved]:
-      'bmscms:text-xs bmscms:font-medium bmscms:px-2 bmscms:py-1 bmscms:rounded bmscms:bg-emerald-100 bmscms:text-emerald-600',
-    [SaveState.Error]:
-      'bmscms:text-xs bmscms:font-medium bmscms:px-2 bmscms:py-1 bmscms:rounded bmscms:bg-red-100 bmscms:text-red-600',
-  };
-  const stateText = {
-    [SaveState.Pending]: 'Editing...',
-    [SaveState.Saving]: 'Saving...',
-    [SaveState.Saved]: 'Saved',
-    [SaveState.Error]: 'Error',
-  };
-  return <span className={stateConfig[saveState]}>{stateText[saveState]}</span>;
 }
 
 function renderErrorMessage(error: string) {
