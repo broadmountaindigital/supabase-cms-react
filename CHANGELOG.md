@@ -1,3 +1,15 @@
+# [1.6.0](https://github.com/broadmountaindigital/supabase-cms-react/compare/v1.5.0...v1.6.0) (2025-06-21)
+
+
+### Bug Fixes
+
+* associate site_id with fields added to ui ([fcdfb26](https://github.com/broadmountaindigital/supabase-cms-react/commit/fcdfb26bf7f4afaafbc6577cf1fd813480230565))
+
+
+### Features
+
+* implement global save functionality ([4cc7898](https://github.com/broadmountaindigital/supabase-cms-react/commit/4cc7898fc5cd639203cf5f752b3d37198bf4742a))
+
 # [1.5.0](https://github.com/broadmountaindigital/supabase-cms-react/compare/v1.4.0...v1.5.0) (2025-06-20)
 
 
