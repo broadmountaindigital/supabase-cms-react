@@ -1,51 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react';
-import type { TextInputProps } from '../types/TextInputProps';
-import type {
-  ValidationSchema,
-  ConflictDetection,
-  OfflineConfig,
-  ConflictResolutionStrategy,
-} from '../types/ValidationTypes';
-import type { RevisionEnabledProps } from '../types/RevisionTypes';
+import type { MultilineEditorProps } from '../types';
 import {
   useAutosizeTextArea,
   useContentFieldsService,
   useSupabaseCMS,
 } from '../hooks';
 import { usePendingChanges } from '../hooks/usePendingChanges';
+import { ACTIVE_EDITOR_CLASS_NAME } from '@/constants';
 
 /**
- * Props for the MultilineEditor component.
- */
-export interface MultilineEditorProps
-  extends Omit<TextInputProps, 'defaultValue'>,
-    RevisionEnabledProps {
-  /** The unique name of the content field to be fetched and updated. */
-  fieldName: string;
-  /** An optional default value to display and use when creating a new field. */
-  defaultValue?: string;
-  /** Optional attributes to pass to the underlying textarea element. */
-  rest?: React.TextareaHTMLAttributes<HTMLTextAreaElement>;
-  /** Custom loading component props */
-  loadingProps?: {
-    lines?: number;
-    lineHeight?: string;
-    width?: string | string[];
-  };
-  /** Validation schema for field validation */
-  validation?: ValidationSchema;
-  /** Conflict detection configuration */
-  conflictDetection?: ConflictDetection;
-  /** Offline support configuration */
-  offlineConfig?: OfflineConfig;
-  /** Default conflict resolution strategy */
-  conflictResolutionStrategy?: ConflictResolutionStrategy;
-  /** Whether to show individual save indicators */
-  showSaveIndicator?: boolean;
-}
-
-/**
- * A simplified multiline text editor component that integrates with the global pending changes system.
+ * A multiline text editor component that integrates with the global pending changes system.
  */
 export default function MultilineEditor(props: MultilineEditorProps) {
   const { isInEditMode } = useSupabaseCMS();
@@ -57,10 +21,10 @@ export default function MultilineEditor(props: MultilineEditorProps) {
     defaultValue = '',
     onChange,
     className,
+    activeEditorClassName,
     rest,
     maxLines,
     maxCharacterCount,
-    showSaveIndicator = true,
   } = props;
 
   // State management
@@ -219,9 +183,6 @@ export default function MultilineEditor(props: MultilineEditorProps) {
     }
   }
 
-  // Get the current pending change for this field
-  const hasPendingChanges = value !== serverValue;
-
   if (isLoading) {
     return null;
   }
@@ -229,7 +190,15 @@ export default function MultilineEditor(props: MultilineEditorProps) {
   return (
     <>
       {isInEditMode ? (
-        <span className={className + ' bmscms:relative'}>
+        <span
+          className={[
+            className,
+            'bmscms:relative',
+            isInEditMode
+              ? (activeEditorClassName ?? ACTIVE_EDITOR_CLASS_NAME)
+              : '',
+          ].join(' ')}
+        >
           <textarea
             ref={textAreaRef}
             value={value}
@@ -241,7 +210,10 @@ export default function MultilineEditor(props: MultilineEditorProps) {
               .filter(Boolean)
               .join(' ')}
             style={rest?.style}
-            {...rest}
+            {...(rest && {
+              ...rest,
+              children: undefined, // Remove children property as it's not valid for textarea
+            })}
           />
         </span>
       ) : (
@@ -250,15 +222,6 @@ export default function MultilineEditor(props: MultilineEditorProps) {
         >
           <span className="bmscms:whitespace-pre-wrap">{value}</span>
         </span>
-      )}
-
-      {/* Pending indicator - shows regardless of edit mode */}
-      {showSaveIndicator && hasPendingChanges && (
-        <div className="bmscms:absolute bmscms:top-[-1.5rem] bmscms:right-0 bmscms:flex bmscms:flex-row bmscms:items-center bmscms:justify-end bmscms:flex-nowrap bmscms:w-full bmscms:gap-2 bmscms:z-10">
-          <span className="bmscms:text-xs bmscms:font-medium bmscms:px-2 bmscms:py-1 bmscms:rounded bmscms:bg-amber-100 bmscms:text-amber-800">
-            Pending
-          </span>
-        </div>
       )}
 
       {error && renderErrorMessage(error)}

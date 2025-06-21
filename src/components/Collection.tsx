@@ -3,6 +3,8 @@ import { useSupabaseCMS } from '../hooks/useSupabaseCMS';
 import MultilineEditor from './MultilineEditor';
 import { EditorButton } from './EditorButton';
 import type { ContentFieldRow } from '../types/database';
+import type { WrapperProps } from '../types/WrapperProps';
+import { ACTIVE_EDITOR_CLASS_NAME } from '../constants';
 
 export interface CollectionProps {
   /** The collection ID to manage */
@@ -18,6 +20,8 @@ export interface CollectionProps {
     addButton?: string;
     removeButton?: string;
     emptyState?: string;
+    listWrapper?: string;
+    listItemWrapper?: string;
   };
   /** Optional prefix for field names within the collection */
   fieldNamePrefix?: string;
@@ -28,9 +32,9 @@ export interface CollectionProps {
   /** Custom wrapper component for each list item with props */
   ListItemWrapperComponent?: React.ElementType;
   /** Props to pass to the ListWrapperComponent */
-  listWrapperProps?: Record<string, unknown>;
+  listWrapperProps?: WrapperProps & Record<string, unknown>;
   /** Props to pass to each ListItemWrapperComponent */
-  listItemWrapperProps?: Record<string, unknown>;
+  listItemWrapperProps?: WrapperProps & Record<string, unknown>;
 }
 
 /**
@@ -44,8 +48,12 @@ export default function Collection({
   emptyStateMessage = 'No items in this collection',
   ListWrapperComponent,
   ListItemWrapperComponent,
-  listWrapperProps = {},
-  listItemWrapperProps = {},
+  listWrapperProps = {
+    activeEditorClassName: ACTIVE_EDITOR_CLASS_NAME,
+  },
+  listItemWrapperProps = {
+    activeEditorClassName: ACTIVE_EDITOR_CLASS_NAME,
+  },
 }: CollectionProps) {
   const { services, isInEditMode } = useSupabaseCMS();
   const [items, setItems] = useState<ContentFieldRow[]>([]);
@@ -149,7 +157,7 @@ export default function Collection({
                 onClick={() => removeItem(item.id)}
                 className={
                   classNames.removeButton ??
-                  'bmscms:bg-red-600 bmscms:p-1 bmscms:text-xs bmscms:cursor-pointer'
+                  'bmscms:p-1 bmscms:text-xs bmscms:cursor-pointer'
                 }
               >
                 Remove
@@ -161,9 +169,21 @@ export default function Collection({
 
       // Wrap item in custom wrapper component if provided
       if (ListItemWrapperComponent) {
+        const mergedClassName = [
+          listItemWrapperProps.className,
+          classNames.listItemWrapper,
+          isInEditMode ? listItemWrapperProps.activeEditorClassName : '',
+        ]
+          .filter(Boolean)
+          .join(' ');
+
         return React.createElement(
           ListItemWrapperComponent,
-          { key: item.id, ...listItemWrapperProps },
+          {
+            key: item.id,
+            ...listItemWrapperProps,
+            className: mergedClassName,
+          },
           itemContent
         );
       }
@@ -173,9 +193,20 @@ export default function Collection({
 
     // Wrap items in custom wrapper component if provided
     if (ListWrapperComponent) {
+      const mergedClassName = [
+        listWrapperProps.className,
+        classNames.listWrapper,
+        isInEditMode ? listWrapperProps.activeEditorClassName : '',
+      ]
+        .filter(Boolean)
+        .join(' ');
+
       return React.createElement(
         ListWrapperComponent,
-        listWrapperProps,
+        {
+          ...listWrapperProps,
+          className: mergedClassName,
+        },
         itemElements
       );
     }
