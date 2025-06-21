@@ -5,4 +5,5 @@ export interface TextInputProps {
   className?: string;
   maxLines?: number;
   maxCharacterCount?: number;
+  activeEditorClassName?: string;
 }
