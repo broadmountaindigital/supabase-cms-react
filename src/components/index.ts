@@ -9,3 +9,4 @@ export { default as SignoutButton } from './SignoutButton';
 export { default as Signup } from './Signup';
 export { default as SiteRoleIndicator } from './SiteRoleIndicator';
 export { default as SkeletonLoader } from './SkeletonLoader';
+export { default as ImageUpload } from './ImageUpload';

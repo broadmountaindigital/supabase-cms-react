@@ -33,6 +33,7 @@ export type {
 } from './DebouncedSaveTypes';
 export type { SkeletonLoaderProps } from './SkeletonLoaderTypes';
 export type { SaveState } from './MultilineEditorTypes';
+export type { ImageUploadProps } from './ImageUploadProps';
 
 // Phase 3 types
 export type {

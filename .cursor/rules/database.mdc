@@ -1,0 +1,8 @@
+---
+globs: supabase/**/*
+alwaysApply: false
+---
+
+- create migrations using `npx supabase migration new migration_name`
+- apply the migration using `npx supabase migration up`
+- re-generate TypeScript types with `npm run types:supabase`
